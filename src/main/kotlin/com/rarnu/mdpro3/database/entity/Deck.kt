@@ -17,7 +17,25 @@ interface Deck : Entity<Deck> {
     var deckCoverCard1: Long
     var deckCoverCard2: Long
     var deckCoverCard3: Long
+    var deckCase: Long
+    var deckProtector: Long
     var deckMainSerial: String
     var deckYdk: String?
 
+}
+
+fun Deck.fromUpdate(): Deck {
+    val d = Deck {}
+    d.deckId = this.deckId
+    d.deckContributor = this.deckContributor
+    d.deckName = this.deckName
+    d.deckRank = this.deckRank
+    d.deckLike = this.deckLike
+    d.deckCoverCard1 = this.deckCoverCard1
+    d.deckCoverCard2 = this.deckCoverCard2
+    d.deckCoverCard3 = this.deckCoverCard3
+    d.deckCase = this.deckCase
+    d.deckProtector = this.deckProtector
+    d.deckYdk = this.deckYdk
+    return d
 }

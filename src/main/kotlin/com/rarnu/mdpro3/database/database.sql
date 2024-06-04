@@ -15,3 +15,6 @@ create table deck
     deck_main_serial varchar(512) not null default '',                -- 卡组的主要系列，通过封面卡获取
     deck_ydk         longtext                                         -- YDK 内容
 ) character set utf8mb4;
+
+alter table deck add column deck_case bigint not null default 0 after deck_cover_card3;
+alter table deck add column deck_protector bigint not null default 0 after deck_case;

@@ -30,7 +30,7 @@ suspend fun ApplicationCall.validateDeck(deck: Deck, needId: Boolean = false): B
         return null
     }
 
-    if (deck.deckYdk?.split("\n")?.isValidYdk() != true) {
+    if (deck.deckYdk?.replace("\r", "")?.split("\n")?.isValidYdk() != true) {
         respond(Result.errorNoData(code = ERR_YDK_NOT_VALID.first, message = ERR_YDK_NOT_VALID.second))
         return null
     }
@@ -55,7 +55,7 @@ suspend fun ApplicationCall.validateSource(): Boolean? {
     return true
 }
 
-private fun List<String>.isValidYdk(): Boolean {
+fun List<String>.isValidYdk(): Boolean {
     var count = 0
     var inMain = false
     for (s in this) {

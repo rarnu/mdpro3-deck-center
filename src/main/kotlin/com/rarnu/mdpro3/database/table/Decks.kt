@@ -17,6 +17,8 @@ object Decks : Table<Deck>("deck") {
     var deckCoverCard1 = long("deck_cover_card1").bindTo { it.deckCoverCard1 }
     var deckCoverCard2 = long("deck_cover_card2").bindTo { it.deckCoverCard2 }
     var deckCoverCard3 = long("deck_cover_card3").bindTo { it.deckCoverCard3 }
+    var deckCase = long("deck_case").bindTo { it.deckCase }
+    var deckProtector = long("deck_protector").bindTo { it.deckProtector }
     var deckMainSerial = varchar("deck_main_serial").bindTo { it.deckMainSerial }
     var deckYdk = text("deck_ydk").bindTo { it.deckYdk }
 }
