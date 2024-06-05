@@ -11,7 +11,6 @@ import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.database.entity.fromUpdate
 import com.rarnu.mdpro3.database.entity.vo.DeckLiteVO
 import com.rarnu.mdpro3.database.entity.vo.RankReq
-import com.rarnu.mdpro3.database.entity.vo.fromDeck
 import com.rarnu.mdpro3.database.entity.vo.fromRow
 import com.rarnu.mdpro3.database.table.Decks
 import com.rarnu.mdpro3.database.table.decks
@@ -126,7 +125,7 @@ fun Route.deckAPI() = route("/deck") {
         val ret = CacheManager.get(cacheKey) {
             var q = db.from(Decks).select(Decks.columns).where {
                 var dec = Decks.deckName notEq ""
-                if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckMainSerial like "%$keyWord%"))
+                if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckMainSerial like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
                 dec
             }
@@ -193,7 +192,7 @@ fun Route.deckAPI() = route("/deck") {
         val ret = CacheManager.get(cacheKey) {
             var q = db.from(Decks).select(Decks.columns).where {
                 var dec = Decks.deckName notEq ""
-                if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckMainSerial like "%$keyWord%"))
+                if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckMainSerial like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
                 dec
             }

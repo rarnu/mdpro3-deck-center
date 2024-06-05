@@ -29,8 +29,6 @@ fun Deck.fromUpdate(): Deck {
     d.deckId = this.deckId
     d.deckContributor = this.deckContributor
     d.deckName = this.deckName
-    d.deckRank = this.deckRank
-    d.deckLike = this.deckLike
     d.deckCoverCard1 = this.deckCoverCard1
     d.deckCoverCard2 = this.deckCoverCard2
     d.deckCoverCard3 = this.deckCoverCard3

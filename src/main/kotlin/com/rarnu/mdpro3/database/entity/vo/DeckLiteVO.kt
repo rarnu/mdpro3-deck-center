@@ -1,8 +1,10 @@
 package com.rarnu.mdpro3.database.entity.vo
 
-import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.database.table.Decks
 import org.ktorm.dsl.QueryRowSet
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class DeckLiteVO(
     var deckId: String = "",
@@ -13,22 +15,11 @@ data class DeckLiteVO(
     var deckCoverCard2: Long = 0L,
     var deckCoverCard3: Long = 0L,
     var deckCase: Long = 0L,
-    var deckProtector: Long = 0L
+    var deckProtector: Long = 0L,
+    var lastDate: String = ""
 ) {
     companion object
 }
-
-fun DeckLiteVO.Companion.fromDeck(d: Deck): DeckLiteVO = DeckLiteVO(
-    deckId = d.deckId,
-    deckContributor = d.deckContributor,
-    deckName = d.deckName,
-    deckLike = d.deckLike,
-    deckCoverCard1 = d.deckCoverCard1,
-    deckCoverCard2 = d.deckCoverCard2,
-    deckCoverCard3 = d.deckCoverCard3,
-    deckCase = d.deckCase,
-    deckProtector = d.deckProtector
-)
 
 fun DeckLiteVO.Companion.fromRow(row: QueryRowSet): DeckLiteVO = DeckLiteVO(
     deckId = row[Decks.deckId] ?: "",
@@ -39,5 +30,6 @@ fun DeckLiteVO.Companion.fromRow(row: QueryRowSet): DeckLiteVO = DeckLiteVO(
     deckCoverCard2 = row[Decks.deckCoverCard2] ?: 0L,
     deckCoverCard3 = row[Decks.deckCoverCard3] ?: 0L,
     deckCase = row[Decks.deckCase] ?: 0L,
-    deckProtector = row[Decks.deckProtector] ?: 0L
+    deckProtector = row[Decks.deckProtector] ?: 0L,
+    lastDate =  (row[Decks.deckUpdateDate] ?: row[Decks.deckUploadDate] ?: LocalDateTime.now()).format(DateTimeFormatter.ISO_DATE)
 )

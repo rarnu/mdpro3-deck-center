@@ -11,7 +11,7 @@ object IdGenerator {
         val random = SecureRandom()
         val bytes = ByteArray(ID_LEN)
         random.nextBytes(bytes)
-        return BigInteger(1, bytes).toString(32)
+        return BigInteger(1, bytes).toString(32).padStart(10, '0')
     }
 
 }
