@@ -1,5 +1,6 @@
 create database mdpro3;
 
+-- 卡组表
 create table deck
 (
     deck_id          varchar(64)  not null primary key,               -- 主键ID
@@ -18,3 +19,10 @@ create table deck
 
 alter table deck add column deck_case bigint not null default 0 after deck_cover_card3;
 alter table deck add column deck_protector bigint not null default 0 after deck_case;
+
+-- 敏感词表
+create table sensitive_word
+(
+    word varchar(64) primary key
+) character set utf8mb4;
+

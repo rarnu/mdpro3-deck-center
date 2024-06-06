@@ -1,6 +1,7 @@
 package com.rarnu.mdpro3.ext
 
 import com.isyscore.kotlin.ktor.Result
+import com.rarnu.mdpro3.api.validateWord
 import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.define.*
 import io.ktor.server.application.*
@@ -23,6 +24,12 @@ suspend fun ApplicationCall.validateDeck(deck: Deck, needId: Boolean = false): B
     }
     if (deck.deckName.isBlank()) {
         respond(Result.errorNoData(code = ERR_NO_DECK_NAME.first, message = ERR_NO_DECK_NAME.second))
+        return null
+    }
+    // 敏感词判断，这里把卡组名称和贡献者名称拼在一起查，主要是为了减少查库次数
+    val sw = validateWord("${deck.deckName},${deck.deckContributor}")
+    if (sw.isNotEmpty()) {
+        respond(Result.errorNoData(code = ERR_NAME_IS_SENSITIVE.first, message = ERR_NAME_IS_SENSITIVE.second.format(sw.joinToString(","))))
         return null
     }
     if (deck.deckYdk.isNullOrBlank()) {
