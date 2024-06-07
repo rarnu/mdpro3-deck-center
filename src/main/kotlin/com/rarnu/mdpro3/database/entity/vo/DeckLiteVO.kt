@@ -2,7 +2,6 @@ package com.rarnu.mdpro3.database.entity.vo
 
 import com.rarnu.mdpro3.database.table.Decks
 import org.ktorm.dsl.QueryRowSet
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
