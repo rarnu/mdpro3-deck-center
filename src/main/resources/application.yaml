@@ -5,6 +5,13 @@ ktor:
     version: 1.0.0.0
   deployment:
     port: 38383
+    sslPort: 38443
+  security:
+    ssl:
+      keyStore: "/etc/letsencrypt/live/rarnu.xyz/keystore.jks"
+      keyAlias: "rarnu"
+      keyStorePassword: "Rarnu1120"
+      privateKeyPassword: "Rarnu1120"
 
 database:
   jdbcUrl: "jdbc:mysql://localhost:3306/mdpro3?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai"

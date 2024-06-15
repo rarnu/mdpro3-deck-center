@@ -21,6 +21,9 @@ object Decks : Table<Deck>("deck") {
     var deckProtector = long("deck_protector").bindTo { it.deckProtector }
     var deckMainSerial = varchar("deck_main_serial").bindTo { it.deckMainSerial }
     var deckYdk = text("deck_ydk").bindTo { it.deckYdk }
+    var userId = long("user_id").bindTo { it.userId }
+    var isPublic = int("is_public").transform({ it == 1 }, { if (it) 1 else 0 }).bindTo { it.isPublic }
+    var description = text("description").bindTo { it.description }
 }
 
 val Database.decks get() = this.sequenceOf(Decks)

@@ -5,6 +5,7 @@ import com.rarnu.mdpro3.api.validateWord
 import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.database.entity.vo.ResultWithValue
 import com.rarnu.mdpro3.define.*
+import com.rarnu.mdpro3.util.MCTokenValidation
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -45,6 +46,26 @@ suspend fun ApplicationCall.validateDeck(deck: Deck, needId: Boolean = false): B
     return true
 }
 
+/**
+ * 验证用户ID是否正确传入
+ */
+suspend fun ApplicationCall.validateUserId(): Long? {
+    val userId = parameters["userId"]?.toLongOrNull()
+    if (userId == null) {
+        respond(Result.errorNoData(code = ERR_NO_USER_ID.first, message = ERR_NO_USER_ID.second))
+        return null
+    }
+    return userId
+}
+
+suspend fun ApplicationCall.validateReqUserId(userId: Long): Boolean? {
+    if (userId == 0L) {
+        respond(Result.errorNoData(code = ERR_NO_USER_ID.first, message = ERR_NO_USER_ID.second))
+        return null
+    }
+    return true
+}
+
 suspend fun ApplicationCall.validateId(): String? {
     val id = parameters["id"]
     if (id.isNullOrBlank()) {
@@ -61,6 +82,18 @@ suspend fun ApplicationCall.validateSource(): Boolean? {
         return null
     }
     return true
+}
+
+/**
+ * 验证用户的 token
+ */
+suspend fun ApplicationCall.validateToken(userId: Long): Boolean? {
+    val token = request.header("token")
+    if (token.isNullOrBlank()) {
+        respond(Result.errorNoData(code = ERR_NO_TOKEN.first, message = ERR_NO_TOKEN.second))
+        return null
+    }
+    return MCTokenValidation.validate(token, userId)
 }
 
 fun List<String>.isValidYdk(): Boolean {

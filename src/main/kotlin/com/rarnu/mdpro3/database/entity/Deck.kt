@@ -21,7 +21,9 @@ interface Deck : Entity<Deck> {
     var deckProtector: Long
     var deckMainSerial: String
     var deckYdk: String?
-
+    var userId: Long
+    var isPublic: Boolean
+    var description: String
 }
 
 fun Deck.fromUpdate(): Deck {
@@ -35,5 +37,8 @@ fun Deck.fromUpdate(): Deck {
     d.deckCase = this.deckCase
     d.deckProtector = this.deckProtector
     d.deckYdk = this.deckYdk
+    d.userId = this.userId
+    d.isPublic = this.isPublic
+    d.description = this.description
     return d
 }

@@ -17,8 +17,10 @@ create table deck
     deck_ydk         longtext                                         -- YDK 内容
 ) character set utf8mb4;
 
-alter table deck add column deck_case bigint not null default 0 after deck_cover_card3;
-alter table deck add column deck_protector bigint not null default 0 after deck_case;
+alter table deck
+    add column deck_case bigint not null default 0 after deck_cover_card3;
+alter table deck
+    add column deck_protector bigint not null default 0 after deck_case;
 
 -- 敏感词表
 create table sensitive_word
@@ -26,3 +28,14 @@ create table sensitive_word
     word varchar(64) primary key
 ) character set utf8mb4;
 
+-- 2024.06.10
+alter table deck add column user_id bigint not null default 0;
+alter table deck add column is_public int not null default 0; -- 是否公开 1公开，0不公开
+alter table deck add column description longtext; -- 卡组描述
+
+create table deck_id
+(
+    id varchar(64) not null primary key -- 卡组id主键
+) character set utf8mb4;
+
+insert into deck_id select deck.deck_id from deck;

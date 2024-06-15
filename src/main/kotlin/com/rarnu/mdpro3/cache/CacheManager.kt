@@ -9,28 +9,30 @@ import java.util.concurrent.TimeUnit
 object CacheManager {
 
     /**
-     * 30 秒的缓存
+     * 公开卡组缓存， 30 秒
      */
-    private val cache: Cache<String, Any> = CacheBuilder.newBuilder().expireAfterWrite(30L, TimeUnit.SECONDS).build()
+    private val publicCache: Cache<String, Any> = CacheBuilder.newBuilder().expireAfterWrite(30L, TimeUnit.SECONDS).build()
 
+    /**
+     * 个人卡组同步缓存,15 秒
+     */
+    private val privateDeckCache: Cache<String, Any> = CacheBuilder.newBuilder().expireAfterWrite(15L, TimeUnit.SECONDS).build()
+
+    /**
+     * 单人点赞缓存，同IP点赞同卡组，10分钟一次
+     */
     private val likeCache: Cache<String, Boolean> = CacheBuilder.newBuilder().expireAfterWrite(10L, TimeUnit.MINUTES).build()
 
-    operator fun<T: Any> get(key: String): T? = cache.getIfPresent(key) as? T
-
-    operator fun<T: Any> set(key: String, value: T) {
-        cache.put(key, value)
-    }
-
-    fun<T: Any> getOrNull(key: String, block: () -> T?): T? {
-        var obj = cache.getIfPresent(key) as? T
+    fun <T : Any> getOrNull(key: String, isPublic: Boolean = true, block: () -> T?): T? {
+        var obj = (if (isPublic) publicCache else privateDeckCache).getIfPresent(key) as? T
         if (obj == null) {
             obj = block()
-            if (obj != null) cache.put(key, obj)
+            if (obj != null) (if (isPublic) publicCache else privateDeckCache).put(key, obj)
         }
         return obj
     }
 
-    fun<T: Any> get(key: String, block: () -> T): T = cache.get(key, block) as T
+    fun <T : Any> get(key: String, isPublic: Boolean = true, block: () -> T): T = (if (isPublic) publicCache else privateDeckCache).get(key, block) as T
 
     fun hasLike(key: String): Boolean = likeCache.getIfPresent(key) == true
 

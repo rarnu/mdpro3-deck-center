@@ -9,15 +9,11 @@ import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.db
 import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.database.entity.fromUpdate
-import com.rarnu.mdpro3.database.entity.vo.DeckLiteVO
-import com.rarnu.mdpro3.database.entity.vo.RankReq
-import com.rarnu.mdpro3.database.entity.vo.fromRow
+import com.rarnu.mdpro3.database.entity.vo.*
 import com.rarnu.mdpro3.database.table.Decks
 import com.rarnu.mdpro3.database.table.decks
 import com.rarnu.mdpro3.define.*
-import com.rarnu.mdpro3.ext.validateDeck
-import com.rarnu.mdpro3.ext.validateId
-import com.rarnu.mdpro3.ext.validateSource
+import com.rarnu.mdpro3.ext.*
 import com.rarnu.mdpro3.util.CardSerial
 import com.rarnu.mdpro3.util.IdGenerator
 import io.ktor.server.application.*
@@ -31,15 +27,63 @@ import java.time.LocalDateTime
 fun Route.deckAPI() = route("/deck") {
 
     /**
+     * 让服务器生成一个唯一的卡组Id
+     */
+    get("/deckId") {
+        call.validateSource() ?: return@get
+        call.respond(Result.success(data = IdGenerator.nextIdDB()))
+    }
+
+    /**
+     * 让服务器生成指定数量的卡组Id
+     */
+    get("/deckIds") {
+        call.validateSource() ?: return@get
+        val count = call.request.queryParameters["count"]?.toIntOrNull() ?: 0
+        val ret = (0 until count).map { IdGenerator.nextIdDB() }
+        call.respond(Result.success(data = ret))
+    }
+
+    /**
+     * 更新卡组公开状态
+     */
+    post<DeckPublicReq>("/public") { req ->
+        call.validateSource() ?: return@post
+        call.validateReqUserId(req.userId) ?: return@post
+        call.validateToken(req.userId) ?: return@post
+        val ret = db.update(Decks) {
+            set(Decks.isPublic, req.isPublic)
+            where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
+        } > 0
+        call.respond(Result.successNoData(message = "$ret"))
+    }
+
+    /**
+     * 更新卡组描述
+     */
+    post<DeckDescriptionReq>("/description") { req ->
+        call.validateSource() ?: return@post
+        call.validateReqUserId(req.userId) ?: return@post
+        call.validateToken(req.userId) ?: return@post
+        val ret = db.update(Decks) {
+            set(Decks.description, req.description)
+            where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
+        } > 0
+        call.respond(Result.successNoData(message = "$ret"))
+    }
+
+    /**
+     * @Deprecated 已过期
      * 上传卡组，返回卡组 id
      */
     post<Deck>("/upload") {
         call.validateSource() ?: return@post
         call.validateDeck(it, false) ?: return@post
-        it.deckId = IdGenerator.nextId()
+        it.deckId = IdGenerator.nextIdDB()
         it.deckUploadDate = LocalDateTime.now()
         it.deckUpdateDate = null
         it.deckMainSerial = CardSerial.getCardSerial(listOf(it.deckCoverCard1, it.deckCoverCard2, it.deckCoverCard3))
+        it.isPublic = true
         val (succ, err) = try {
             (db.decks.add(it) > 0) to ""
         } catch (e: Exception) {
@@ -53,6 +97,7 @@ fun Route.deckAPI() = route("/deck") {
     }
 
     /**
+     * @Deprecated 已过期
      * 更新卡组
      */
     put<Deck>("/update") {
@@ -61,6 +106,7 @@ fun Route.deckAPI() = route("/deck") {
         val d = it.fromUpdate()
         d.deckUpdateDate = LocalDateTime.now()
         d.deckMainSerial = CardSerial.getCardSerial(listOf(d.deckCoverCard1, d.deckCoverCard2, d.deckCoverCard3))
+        d.isPublic = true
         val (succ, err) = try {
             (db.decks.update(d) > 0) to ""
         } catch (e: Exception) {
@@ -124,7 +170,7 @@ fun Route.deckAPI() = route("/deck") {
 
         val ret = CacheManager.get(cacheKey) {
             var q = db.from(Decks).select(Decks.columns).where {
-                var dec = Decks.deckName notEq ""
+                var dec = Decks.isPublic eq true
                 if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckMainSerial like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
                 dec
@@ -137,7 +183,7 @@ fun Route.deckAPI() = route("/deck") {
             q = q.limit((page - 1) * size, size)
             val total = q.totalRecordsInAllPages
             val pages = (total / size) + (if (total % size == 0) 0 else 1)
-            val list = q.map { Decks.createEntity(it) }
+            val list = q.map { DeckLiteVO.fromRow(it) /*Decks.createEntity(it)*/ }
             PagedData(current = page, size = size, total = total, pages = pages, records = list)
         }
 
@@ -151,7 +197,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@post
         val id = call.validateId() ?: return@post
         val ip = call.request.origin.remoteHost
-        val cacheKey = "remote_host_${ip}"
+        val cacheKey = "remote_host_${ip}_deck_${id}"
         if (CacheManager.hasLike(cacheKey)) {
             call.respond(Result.errorNoData(code = ERR_LIKE_TOO_NEAR.first, message = ERR_LIKE_TOO_NEAR.second))
             return@post
@@ -191,12 +237,12 @@ fun Route.deckAPI() = route("/deck") {
         val cacheKey = "deck_get_list_lite_size_${size}_key_${keyWord}_con_${contributor}_like_${sortLike}_rank_${sortRank}"
         val ret = CacheManager.get(cacheKey) {
             var q = db.from(Decks).select(Decks.columns).where {
-                var dec = Decks.deckName notEq ""
+                var dec = Decks.isPublic eq true
                 if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckMainSerial like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
                 dec
             }
-            q = when{
+            q = when {
                 sortLike -> q.orderBy(Decks.deckLike.desc())
                 sortRank -> q.orderBy(Decks.deckRank.desc())
                 else -> q.orderBy(Decks.deckUpdateDate.desc(), Decks.deckUploadDate.desc())

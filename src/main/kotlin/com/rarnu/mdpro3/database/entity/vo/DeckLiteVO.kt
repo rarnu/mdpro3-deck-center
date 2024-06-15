@@ -15,7 +15,8 @@ data class DeckLiteVO(
     var deckCoverCard3: Long = 0L,
     var deckCase: Long = 0L,
     var deckProtector: Long = 0L,
-    var lastDate: String = ""
+    var lastDate: String = "",
+    var userId: Long = 0,
 ) {
     companion object
 }
@@ -30,5 +31,6 @@ fun DeckLiteVO.Companion.fromRow(row: QueryRowSet): DeckLiteVO = DeckLiteVO(
     deckCoverCard3 = row[Decks.deckCoverCard3] ?: 0L,
     deckCase = row[Decks.deckCase] ?: 0L,
     deckProtector = row[Decks.deckProtector] ?: 0L,
-    lastDate =  (row[Decks.deckUpdateDate] ?: row[Decks.deckUploadDate] ?: LocalDateTime.now()).format(DateTimeFormatter.ISO_DATE)
+    lastDate =  (row[Decks.deckUpdateDate] ?: row[Decks.deckUploadDate] ?: LocalDateTime.now()).format(DateTimeFormatter.ISO_DATE),
+    userId = row[Decks.userId] ?: 0L
 )
