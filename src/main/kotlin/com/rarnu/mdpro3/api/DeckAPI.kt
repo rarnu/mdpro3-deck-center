@@ -31,6 +31,7 @@ fun Route.deckAPI() = route("/deck") {
      */
     get("/deckId") {
         call.validateSource() ?: return@get
+        call.record("/deck/deckId")
         call.respond(Result.success(data = IdGenerator.nextIdDB()))
     }
 
@@ -39,6 +40,7 @@ fun Route.deckAPI() = route("/deck") {
      */
     get("/deckIds") {
         call.validateSource() ?: return@get
+        call.record("/deck/deckIds")
         val count = call.request.queryParameters["count"]?.toIntOrNull() ?: 0
         val ret = (0 until count).map { IdGenerator.nextIdDB() }
         call.respond(Result.success(data = ret))
@@ -51,6 +53,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@post
         call.validateReqUserId(req.userId) ?: return@post
         call.validateToken(req.userId) ?: return@post
+        call.record("/deck/public")
         val ret = db.update(Decks) {
             set(Decks.isPublic, req.isPublic)
             where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
@@ -65,6 +68,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@post
         call.validateReqUserId(req.userId) ?: return@post
         call.validateToken(req.userId) ?: return@post
+        call.record("/deck/description")
         val ret = db.update(Decks) {
             set(Decks.description, req.description)
             where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
@@ -79,6 +83,7 @@ fun Route.deckAPI() = route("/deck") {
     post<Deck>("/upload") {
         call.validateSource() ?: return@post
         call.validateDeck(it, false) ?: return@post
+        call.record("/deck/upload")
         it.deckId = IdGenerator.nextIdDB()
         it.deckUploadDate = LocalDateTime.now()
         it.deckUpdateDate = null
@@ -103,6 +108,7 @@ fun Route.deckAPI() = route("/deck") {
     put<Deck>("/update") {
         call.validateSource() ?: return@put
         call.validateDeck(it, true) ?: return@put
+        call.record("/deck/update")
         val d = it.fromUpdate()
         d.deckUpdateDate = LocalDateTime.now()
         d.deckMainSerial = CardSerial.getCardSerial(listOf(d.deckCoverCard1, d.deckCoverCard2, d.deckCoverCard3))
@@ -120,11 +126,13 @@ fun Route.deckAPI() = route("/deck") {
     }
 
     /**
+     * @Deprecated 已过期
      * 删除卡组(管理员功能)
      */
     delete("/{id}") {
         call.validateSource() ?: return@delete
         val id = call.validateId() ?: return@delete
+        call.record("/deck/[delete]")
         val (succ, err) = try {
             (db.decks.removeIf { it.deckId eq id } > 0) to ""
         } catch (e: Exception) {
@@ -143,6 +151,7 @@ fun Route.deckAPI() = route("/deck") {
     get("/{id}") {
         call.validateSource() ?: return@get
         val id = call.validateId() ?: return@get
+        call.record("/deck/[get]")
         val cacheKey = "deck_get_id_${id}"
         val ret = CacheManager.getOrNull(cacheKey) {
             db.decks.find { it.deckId eq id }
@@ -159,6 +168,7 @@ fun Route.deckAPI() = route("/deck") {
      */
     get("/list") {
         call.validateSource() ?: return@get
+        call.record("/deck/list")
         val page = call.request.queryParameters["page"]?.toIntOrNull() ?: 1
         val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 20
         val keyWord = call.request.queryParameters["keyWord"]
@@ -196,6 +206,7 @@ fun Route.deckAPI() = route("/deck") {
     post("/like/{id}") {
         call.validateSource() ?: return@post
         val id = call.validateId() ?: return@post
+        call.record("/deck/like")
         val ip = call.request.origin.remoteHost
         val cacheKey = "remote_host_${ip}_deck_${id}"
         if (CacheManager.hasLike(cacheKey)) {
@@ -216,6 +227,7 @@ fun Route.deckAPI() = route("/deck") {
     post<RankReq>("/rank/{id}") { req ->
         call.validateSource() ?: return@post
         val id = call.validateId() ?: return@post
+        call.record("/deck/rank")
         val succ = db.update(Decks) {
             set(Decks.deckRank, req.rank)
             where { Decks.deckId eq id }
@@ -228,6 +240,7 @@ fun Route.deckAPI() = route("/deck") {
      */
     get("/list/lite") {
         call.validateSource() ?: return@get
+        call.record("/deck/list/lite")
         val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 1000
         val keyWord = call.request.queryParameters["keyWord"]
         val sortLike = call.request.queryParameters["sortLike"]?.toBoolean() ?: false

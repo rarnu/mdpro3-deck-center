@@ -4,9 +4,9 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <root level="warn">
+    <root level="DEBUG">
         <appender-ref ref="STDOUT"/>
     </root>
-    <logger name="org.eclipse.jetty" level="WARN"/>
-    <logger name="io.netty" level="WARN"/>
+    <logger name="org.eclipse.jetty" level="DEBUG"/>
+    <logger name="io.netty" level="DEBUG"/>
 </configuration>

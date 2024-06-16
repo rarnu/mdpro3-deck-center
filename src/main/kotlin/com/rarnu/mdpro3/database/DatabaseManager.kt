@@ -19,11 +19,11 @@ object DatabaseManager {
                 "url" to jdbcUrl,
                 "username" to user,
                 "password" to password,
-                "logLevel" to "WARN",
+                "logLevel" to "DEBUG",
                 "validationQuery" to "select 1"
             )
         )
-        db = Database.connect(dataSource = dataSource, dialect = MySqlDialect(), logger = ConsoleLogger(LogLevel.INFO))
+        db = Database.connect(dataSource = dataSource, dialect = MySqlDialect(), logger = ConsoleLogger(LogLevel.DEBUG))
     }
 
     fun Application.readDatabaseConfig(): Triple<String, String, String> {

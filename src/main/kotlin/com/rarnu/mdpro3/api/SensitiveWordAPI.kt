@@ -5,6 +5,7 @@ import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.db
 import com.rarnu.mdpro3.database.entity.vo.WordReq
 import com.rarnu.mdpro3.define.ERR_NO_WORD
+import com.rarnu.mdpro3.ext.record
 import com.rarnu.mdpro3.ext.validateSource
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -17,6 +18,7 @@ fun Route.sensitiveWordAPI() = route("/sw") {
      */
     post<WordReq>("/validate") {
         call.validateSource() ?: return@post
+        call.record("/sw/validate")
         if (it.text.isBlank()) {
             call.respond(Result.errorNoData(code = ERR_NO_WORD.first, message = ERR_NO_WORD.second))
             return@post

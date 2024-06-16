@@ -3,8 +3,6 @@ package com.rarnu.mdpro3.api
 import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.db
 import com.rarnu.mdpro3.database.table.decks
-import com.rarnu.mdpro3.ext.validateToken
-import com.rarnu.mdpro3.ext.validateUserId
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -16,8 +14,7 @@ import com.rarnu.mdpro3.database.entity.vo.SingleSyncReq
 import com.rarnu.mdpro3.database.entity.vo.SyncDeckReq
 import com.rarnu.mdpro3.database.entity.vo.toDeck
 import com.rarnu.mdpro3.define.ERR_SYNC_FAIL
-import com.rarnu.mdpro3.ext.validateReqUserId
-import com.rarnu.mdpro3.ext.validateSource
+import com.rarnu.mdpro3.ext.*
 import org.ktorm.dsl.and
 import org.ktorm.entity.*
 
@@ -32,8 +29,9 @@ fun Route.syncAPI() = route("/sync") {
         call.validateSource() ?: return@get
         val userId = call.validateUserId() ?: return@get
         call.validateToken(userId) ?: return@get
+        call.record("/sync/[get]")
         val cacheKey = "sync_get_user_$userId"
-        val ret = CacheManager.get(cacheKey) {
+        val ret = CacheManager.get(cacheKey, isPublic = false) {
             db.decks.filter { it.userId eq userId }.sortedBy { it.deckUpdateDate.desc() }.sortedBy { it.deckUploadDate.desc() }.map { it }
         }
         call.respond(Result.success(data = ret))
@@ -46,6 +44,7 @@ fun Route.syncAPI() = route("/sync") {
         call.validateSource() ?: return@post
         call.validateReqUserId(req.userId) ?: return@post
         call.validateToken(req.userId) ?: return@post
+        call.record("/sync/multi")
         if (req.decks.isEmpty()) {
             // 没有要同步的卡组，直接返回正确
             call.respond(Result.successNoData())
@@ -53,7 +52,12 @@ fun Route.syncAPI() = route("/sync") {
         }
         // 开启一个事务来批量同步卡组
         val ret = db.useTransaction { trans ->
-            val list = req.decks.map { syncDeck(it, req.userId, req.deckContributor) }
+            val list = req.decks.map {
+                // 清掉缓存，防止影响查询
+                val cacheKey2 = "deck_get_id_${it.deckId}"
+                CacheManager.clean(cacheKey2)
+                syncDeck(it, req.userId, req.deckContributor)
+            }
             try {
                 trans.commit()
                 req.decks.size == list.count { it }
@@ -62,6 +66,8 @@ fun Route.syncAPI() = route("/sync") {
                 false
             }
         }
+        val cacheKey = "sync_get_user_${req.userId}"
+        CacheManager.clean(cacheKey, isPublic = false)
         call.respond(if (ret) Result.success(data = req.decks.size) else Result.errorNoData(code = ERR_SYNC_FAIL.first, message = ERR_SYNC_FAIL.second))
     }
 
@@ -72,7 +78,13 @@ fun Route.syncAPI() = route("/sync") {
         call.validateSource() ?: return@post
         call.validateReqUserId(req.userId) ?: return@post
         call.validateToken(req.userId) ?: return@post
+        call.record("/sync/single")
         val ret = syncDeck(req.deck, req.userId, req.deckContributor)
+        // 清掉缓存，防止影响查询
+        val cacheKey = "sync_get_user_${req.userId}"
+        CacheManager.clean(cacheKey, isPublic = false)
+        val cacheKey2 = "deck_get_id_${req.deck.deckId}"
+        CacheManager.clean(cacheKey2)
         call.respond(Result.success(data = ret))
     }
 }
