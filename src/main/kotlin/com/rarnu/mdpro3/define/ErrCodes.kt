@@ -16,3 +16,6 @@ val ERR_NAME_IS_SENSITIVE = 13 to "卡组或贡献者名称中包含敏感词「
 val ERR_NO_TOKEN = 14 to "没有传入 token"
 val ERR_NO_USER_ID = 15 to "没有传入用户 ID"
 val ERR_SYNC_FAIL = 16 to "同步卡组失败"
+val ERR_DAU_SRC = 17 to "未提供 DAU 分析的来源"
+val ERR_DAU_YEAR = 18 to "未提供 DAU 分析的年份"
+val ERR_DAU_MONTH = 19 to "未提供 DAU 分析的月份"

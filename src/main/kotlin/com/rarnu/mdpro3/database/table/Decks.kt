@@ -24,6 +24,7 @@ object Decks : Table<Deck>("deck") {
     var userId = long("user_id").bindTo { it.userId }
     var isPublic = int("is_public").transform({ it == 1 }, { if (it) 1 else 0 }).bindTo { it.isPublic }
     var description = text("description").bindTo { it.description }
+    var isDelete = int("is_delete").transform({ it == 1 }, { if (it) 1 else 0 }).bindTo { it.isDelete }
 }
 
 val Database.decks get() = this.sequenceOf(Decks)

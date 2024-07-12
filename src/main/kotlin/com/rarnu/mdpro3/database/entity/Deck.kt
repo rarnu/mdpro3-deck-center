@@ -13,7 +13,7 @@ interface Deck : Entity<Deck> {
     var deckRank: Int
     var deckLike: Int
     var deckUploadDate: LocalDateTime
-    var deckUpdateDate: LocalDateTime?
+    var deckUpdateDate: LocalDateTime
     var deckCoverCard1: Long
     var deckCoverCard2: Long
     var deckCoverCard3: Long
@@ -24,6 +24,7 @@ interface Deck : Entity<Deck> {
     var userId: Long
     var isPublic: Boolean
     var description: String
+    var isDelete: Boolean
 }
 
 fun Deck.fromUpdate(): Deck {
@@ -40,5 +41,6 @@ fun Deck.fromUpdate(): Deck {
     d.userId = this.userId
     d.isPublic = this.isPublic
     d.description = this.description
+    d.isDelete = this.isDelete
     return d
 }

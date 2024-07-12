@@ -86,6 +86,33 @@ suspend fun ApplicationCall.validateSource(): Boolean? {
     return true
 }
 
+suspend fun ApplicationCall.validateDauSrc(): String? {
+    val src = request.queryParameters["src"]
+    if (src.isNullOrBlank()) {
+        respond(Result.errorNoData(code = ERR_DAU_SRC.first, message = ERR_DAU_SRC.second))
+        return null
+    }
+    return src
+}
+
+suspend fun ApplicationCall.validateDauYear(): Int? {
+    val year = request.queryParameters["year"]?.toIntOrNull()
+    if (year == null) {
+        respond(Result.errorNoData(code = ERR_DAU_YEAR.first, message = ERR_DAU_YEAR.second))
+        return null
+    }
+    return year
+}
+
+suspend fun ApplicationCall.validateDauMonth(): Int? {
+    val month = request.queryParameters["month"]?.toIntOrNull()
+    if (month == null) {
+        respond(Result.errorNoData(code = ERR_DAU_MONTH.first, message = ERR_DAU_MONTH.second))
+        return null
+    }
+    return month
+}
+
 /**
  * 验证用户的 token
  */

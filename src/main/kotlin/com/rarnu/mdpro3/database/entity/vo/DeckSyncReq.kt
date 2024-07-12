@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode")
+
 package com.rarnu.mdpro3.database.entity.vo
 
 import com.rarnu.mdpro3.database.entity.Deck
@@ -47,11 +49,10 @@ fun SyncDeckReq.toDeck(userId: Long, contributor: String = "", isUpdate: Boolean
     d.deckYdk = this.deckYdk
     d.userId = userId
     d.deckMainSerial = CardSerial.getCardSerial(listOf(deckCoverCard1, deckCoverCard2, deckCoverCard3))
-    if (isUpdate) {
-        d.deckUpdateDate = LocalDateTime.now()
-    } else {
+    if (!isUpdate) {
         d.deckUploadDate = LocalDateTime.now()
     }
+    d.deckUpdateDate = LocalDateTime.now()
     return d
 }
 

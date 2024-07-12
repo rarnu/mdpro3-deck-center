@@ -86,7 +86,7 @@ fun Route.deckAPI() = route("/deck") {
         call.record("/deck/upload")
         it.deckId = IdGenerator.nextIdDB()
         it.deckUploadDate = LocalDateTime.now()
-        it.deckUpdateDate = null
+        it.deckUpdateDate = LocalDateTime.now()
         it.deckMainSerial = CardSerial.getCardSerial(listOf(it.deckCoverCard1, it.deckCoverCard2, it.deckCoverCard3))
         it.isPublic = true
         val (succ, err) = try {
@@ -178,6 +178,10 @@ fun Route.deckAPI() = route("/deck") {
 
         val cacheKey = "deck_get_list_page_${page}_size_${size}_key_${keyWord}_con_${contributor}_like_${sortLike}_rank_${sortRank}"
 
+        db.from(Decks).select().whereWithConditions { list ->
+            list += (Decks.deckId.isNotNull())
+        }
+
         val ret = CacheManager.get(cacheKey) {
             var q = db.from(Decks).select(Decks.columns).where {
                 var dec = Decks.isPublic eq true
@@ -241,7 +245,7 @@ fun Route.deckAPI() = route("/deck") {
     get("/list/lite") {
         call.validateSource() ?: return@get
         call.record("/deck/list/lite")
-        val size = call.request.queryParameters["size"]?.toIntOrNull() ?: 1000
+        val size = kotlin.math.min(call.request.queryParameters["size"]?.toIntOrNull() ?: 1000, 1000)
         val keyWord = call.request.queryParameters["keyWord"]
         val sortLike = call.request.queryParameters["sortLike"]?.toBoolean() ?: false
         val sortRank = call.request.queryParameters["sortRank"]?.toBoolean() ?: false
@@ -250,7 +254,7 @@ fun Route.deckAPI() = route("/deck") {
         val cacheKey = "deck_get_list_lite_size_${size}_key_${keyWord}_con_${contributor}_like_${sortLike}_rank_${sortRank}"
         val ret = CacheManager.get(cacheKey) {
             var q = db.from(Decks).select(Decks.columns).where {
-                var dec = Decks.isPublic eq true
+                var dec = (Decks.isPublic eq true) and (Decks.isDelete eq false)
                 if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckMainSerial like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
                 dec

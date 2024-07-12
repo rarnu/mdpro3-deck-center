@@ -16,6 +16,7 @@ import com.rarnu.mdpro3.database.entity.vo.toDeck
 import com.rarnu.mdpro3.define.ERR_SYNC_FAIL
 import com.rarnu.mdpro3.ext.*
 import org.ktorm.dsl.and
+import org.ktorm.dsl.update
 import org.ktorm.entity.*
 
 fun Route.syncAPI() = route("/sync") {
@@ -91,8 +92,12 @@ fun Route.syncAPI() = route("/sync") {
 
 private fun syncDeck(dr: SyncDeckReq, userId: Long, contributor: String): Boolean =
     if (dr.isDelete) {
-        // 删除
-        db.decks.removeIf { (it.deckId eq dr.deckId) and (it.userId eq userId) } > 0
+        // 如果是删除，打个删除标签，不做物理删除
+        val deck = db.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
+        if (deck != null) {
+            deck.isDelete = true
+            db.decks.update(deck) > 0
+        } else false
     } else {
         var deck = db.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
         if (deck == null) {
@@ -100,8 +105,10 @@ private fun syncDeck(dr: SyncDeckReq, userId: Long, contributor: String): Boolea
             deck = dr.toDeck(userId, contributor)
             db.decks.add(deck) > 0
         } else {
-            // 更新
-            deck = dr.toDeck(userId, contributor, isUpdate = true)
-            db.decks.update(deck) > 0
+            if (!deck.isDelete) {
+                // 如果卡组没有被删除，则更新它
+                deck = dr.toDeck(userId, contributor, isUpdate = true)
+                db.decks.update(deck) > 0
+            } else false
         }
     }

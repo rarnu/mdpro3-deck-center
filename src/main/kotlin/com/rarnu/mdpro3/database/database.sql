@@ -55,3 +55,6 @@ create table client_source
     call_api    varchar(128) not null default '',  -- 调用的 API
     create_time datetime     not null default now()
 ) character set utf8mb4;
+
+-- 2024.07.12
+alter table deck add column is_delete int not null default 0; -- 是否已删除,0未删，1:已删
