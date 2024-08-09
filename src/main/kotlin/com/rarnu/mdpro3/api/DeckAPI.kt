@@ -178,10 +178,6 @@ fun Route.deckAPI() = route("/deck") {
 
         val cacheKey = "deck_get_list_page_${page}_size_${size}_key_${keyWord}_con_${contributor}_like_${sortLike}_rank_${sortRank}"
 
-        db.from(Decks).select().whereWithConditions { list ->
-            list += (Decks.deckId.isNotNull())
-        }
-
         val ret = CacheManager.get(cacheKey) {
             var q = db.from(Decks).select(Decks.columns).where {
                 var dec = Decks.isPublic eq true
