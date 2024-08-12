@@ -1,11 +1,12 @@
 package com.rarnu.mdpro3.cache
 
 import com.rarnu.mdpro3.database.DatabaseManager.db
-import com.rarnu.mdpro3.database.entity.ClientSource
-import com.rarnu.mdpro3.database.table.ClientSources
+// import com.rarnu.mdpro3.database.entity.ClientSource
+// import com.rarnu.mdpro3.database.table.ClientSources
 import org.ktorm.dsl.batchInsert
 import java.time.LocalDateTime
 
+/*
 object StatisticsCache {
 
     private val source = mutableListOf<ClientSource>()
@@ -44,3 +45,5 @@ object StatisticsCache {
         }
     }
 }
+
+ */

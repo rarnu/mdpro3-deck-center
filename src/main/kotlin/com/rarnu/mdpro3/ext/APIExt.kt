@@ -2,13 +2,11 @@ package com.rarnu.mdpro3.ext
 
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.api.validateWord
-import com.rarnu.mdpro3.cache.StatisticsCache
 import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.database.entity.vo.ResultWithValue
 import com.rarnu.mdpro3.define.*
 import com.rarnu.mdpro3.util.MCTokenValidation
 import io.ktor.server.application.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 
@@ -139,11 +137,11 @@ fun List<String>.isValidYdk(): Boolean {
     return count >= 40
 }
 
-fun ApplicationCall.record(api: String) {
-    // 获取客户端的源头，可以是 Android/iOS/Web/Windows/Mac/Linux 等
-    val src = request.header("ClientSource") ?: "Unknown"
-    // 获取请求方的 IP 地址
-    val ip = request.origin.remoteHost
-    val ua = request.userAgent() ?: "Unknown"
-    StatisticsCache.addSource(ip, src, ua, api)
-}
+//fun ApplicationCall.record(api: String) {
+//    // 获取客户端的源头，可以是 Android/iOS/Web/Windows/Mac/Linux 等
+//    val src = request.header("ClientSource") ?: "Unknown"
+//    // 获取请求方的 IP 地址
+//    val ip = request.origin.remoteHost
+//    val ua = request.userAgent() ?: "Unknown"
+//    StatisticsCache.addSource(ip, src, ua, api)
+//}

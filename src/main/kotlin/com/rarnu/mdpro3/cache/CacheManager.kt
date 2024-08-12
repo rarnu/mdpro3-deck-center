@@ -32,7 +32,8 @@ object CacheManager {
         return obj
     }
 
-    fun <T : Any> get(key: String, isPublic: Boolean = true, block: () -> T): T = (if (isPublic) publicCache else privateDeckCache).get(key, block) as T
+    fun <T : Any> get(key: String, isPublic: Boolean = true, block: () -> T): T =
+        (if (isPublic) publicCache else privateDeckCache).get(key, block) as T
 
     fun clean(key: String, isPublic: Boolean = true) {
         (if (isPublic) publicCache else privateDeckCache).invalidate(key)

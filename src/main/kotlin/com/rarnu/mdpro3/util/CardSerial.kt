@@ -9,9 +9,11 @@ import kotlinx.coroutines.runBlocking
 
 object CardSerial {
 
-    fun getCardSerial(ids: List<Long>): String = runBlocking {
-        ids.map { async { getCard(it) } }.awaitAll().joinToString("")
-    }
+    fun getCardSerial(ids: List<Long>): String = ""
+
+//    fun getCardSerial(ids: List<Long>): String = runBlocking {
+//        ids.map { async { getCard(it) } }.awaitAll().joinToString("")
+//    }
 
     private fun getCard(id: Long): String = try {
         val jsonRet = http {
