@@ -1,4 +1,4 @@
-package com.rarnu.mdpro3.database.entity.vo
+package com.rarnu.mdpro3.request
 
 data class DeckDescriptionReq(
     val userId: Long = 0L,

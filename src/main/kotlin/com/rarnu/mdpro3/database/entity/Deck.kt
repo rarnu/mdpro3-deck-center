@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode")
+
 package com.rarnu.mdpro3.database.entity
 
 import org.ktorm.entity.Entity

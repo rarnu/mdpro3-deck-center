@@ -2,8 +2,8 @@ package com.rarnu.mdpro3.api
 
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.cache.CacheManager
-import com.rarnu.mdpro3.database.DatabaseManager.db
-import com.rarnu.mdpro3.database.entity.vo.WordReq
+import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
+import com.rarnu.mdpro3.request.WordReq
 import com.rarnu.mdpro3.define.ERR_NO_WORD
 import com.rarnu.mdpro3.ext.validateSource
 import io.ktor.server.application.*
@@ -33,7 +33,7 @@ fun Route.sensitiveWordAPI() = route("/sw") {
 /**
  * 输入文本，返回命中的关键字列表
  */
-fun validateWord(word: String): List<String> = db.useConnection { conn ->
+fun validateWord(word: String): List<String> = dbMDPro3.useConnection { conn ->
     val list = mutableListOf<String>()
     conn.prepareStatement("select word from sensitive_word where ? like concat('%', word, '%')").use { stmt ->
         stmt.setString(1, word)

@@ -1,7 +1,7 @@
 package com.rarnu.mdpro3.api
 
 import com.rarnu.mdpro3.cache.CacheManager
-import com.rarnu.mdpro3.database.DatabaseManager.db
+import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.database.table.decks
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -9,10 +9,10 @@ import io.ktor.server.routing.*
 import org.ktorm.dsl.desc
 import org.ktorm.dsl.eq
 import com.isyscore.kotlin.ktor.Result
-import com.rarnu.mdpro3.database.entity.vo.MultiSyncReq
-import com.rarnu.mdpro3.database.entity.vo.SingleSyncReq
-import com.rarnu.mdpro3.database.entity.vo.SyncDeckReq
-import com.rarnu.mdpro3.database.entity.vo.toDeck
+import com.rarnu.mdpro3.request.MultiSyncReq
+import com.rarnu.mdpro3.request.SingleSyncReq
+import com.rarnu.mdpro3.request.SyncDeckReq
+import com.rarnu.mdpro3.request.toDeck
 import com.rarnu.mdpro3.define.ERR_SYNC_FAIL
 import com.rarnu.mdpro3.ext.*
 import org.ktorm.dsl.and
@@ -32,7 +32,7 @@ fun Route.syncAPI() = route("/sync") {
         // call.record("/sync/[get]")
         val cacheKey = "sync_get_user_$userId"
         val ret = CacheManager.get(cacheKey, isPublic = false) {
-            db.decks.filter { it.userId eq userId }.sortedBy { it.deckUpdateDate.desc() }.sortedBy { it.deckUploadDate.desc() }.map { it }
+            dbMDPro3.decks.filter { it.userId eq userId }.sortedBy { it.deckUpdateDate.desc() }.sortedBy { it.deckUploadDate.desc() }.map { it }
         }
         call.respond(Result.success(data = ret))
     }
@@ -51,7 +51,7 @@ fun Route.syncAPI() = route("/sync") {
             return@post
         }
         // 开启一个事务来批量同步卡组
-        val ret = db.useTransaction { trans ->
+        val ret = dbMDPro3.useTransaction { trans ->
             val list = req.decks.map {
                 // 清掉缓存，防止影响查询
                 val cacheKey2 = "deck_get_id_${it.deckId}"
@@ -92,22 +92,22 @@ fun Route.syncAPI() = route("/sync") {
 private fun syncDeck(dr: SyncDeckReq, userId: Long, contributor: String): Boolean =
     if (dr.isDelete) {
         // 如果是删除，打个删除标签，不做物理删除
-        val deck = db.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
+        val deck = dbMDPro3.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
         if (deck != null) {
             deck.isDelete = true
-            db.decks.update(deck) > 0
+            dbMDPro3.decks.update(deck) > 0
         } else false
     } else {
-        var deck = db.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
+        var deck = dbMDPro3.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
         if (deck == null) {
             // 新增
             deck = dr.toDeck(userId, contributor)
-            db.decks.add(deck) > 0
+            dbMDPro3.decks.add(deck) > 0
         } else {
             if (!deck.isDelete) {
                 // 如果卡组没有被删除，则更新它
                 deck = dr.toDeck(userId, contributor, isUpdate = true)
-                db.decks.update(deck) > 0
+                dbMDPro3.decks.update(deck) > 0
             } else false
         }
     }

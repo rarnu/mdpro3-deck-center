@@ -3,7 +3,7 @@ package com.rarnu.mdpro3
 import com.isyscore.kotlin.common.HttpMethod
 import com.isyscore.kotlin.common.http
 import com.isyscore.kotlin.common.toObj
-import com.rarnu.mdpro3.database.entity.vo.SingleSyncReq
+import com.rarnu.mdpro3.request.SingleSyncReq
 import kotlin.test.Test
 
 class TestSyncSingle {

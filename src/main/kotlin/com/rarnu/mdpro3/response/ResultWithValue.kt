@@ -1,4 +1,4 @@
-package com.rarnu.mdpro3.database.entity.vo
+package com.rarnu.mdpro3.response
 
 data class ResultWithValue<T>(var code: Int, var message: String, var messageValue: String, var data: T?) {
     companion object {

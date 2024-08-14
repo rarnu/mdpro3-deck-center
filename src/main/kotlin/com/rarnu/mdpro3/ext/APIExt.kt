@@ -3,7 +3,7 @@ package com.rarnu.mdpro3.ext
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.api.validateWord
 import com.rarnu.mdpro3.database.entity.Deck
-import com.rarnu.mdpro3.database.entity.vo.ResultWithValue
+import com.rarnu.mdpro3.response.ResultWithValue
 import com.rarnu.mdpro3.define.*
 import com.rarnu.mdpro3.util.MCTokenValidation
 import io.ktor.server.application.*

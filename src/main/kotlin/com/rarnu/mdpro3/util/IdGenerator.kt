@@ -1,6 +1,6 @@
 package com.rarnu.mdpro3.util
 
-import com.rarnu.mdpro3.database.DatabaseManager.db
+import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.database.entity.DeckId
 import com.rarnu.mdpro3.database.table.deckIds
 import org.ktorm.entity.add
@@ -20,9 +20,9 @@ object IdGenerator {
 
     fun nextIdDB(): String {
         val nid = nextId()
-        val ret = db.useTransaction { trans ->
+        val ret = dbMDPro3.useTransaction { trans ->
             try {
-                val added = db.deckIds.add(DeckId {
+                val added = dbMDPro3.deckIds.add(DeckId {
                     id = nid
                 })
                 trans.commit()

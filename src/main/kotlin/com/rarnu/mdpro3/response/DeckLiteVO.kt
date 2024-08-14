@@ -1,4 +1,4 @@
-package com.rarnu.mdpro3.database.entity.vo
+package com.rarnu.mdpro3.response
 
 import com.rarnu.mdpro3.database.table.Decks
 import org.ktorm.dsl.QueryRowSet

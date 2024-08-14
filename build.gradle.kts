@@ -7,6 +7,8 @@ val httpV2Version: String by project
 val ktormVersion: String by project
 val druidVersion: String by project
 val mysqlVersion: String by project
+val sqliteVersion: String by project
+val kuromojiVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -75,6 +77,11 @@ dependencies {
 
     // mysql
     implementation("mysql:mysql-connector-java:$mysqlVersion")
+
+    // sqlite
+    implementation("org.xerial:sqlite-jdbc:$sqliteVersion")
+
+    implementation("com.atilika.kuromoji:kuromoji-ipadic:$kuromojiVersion")
 
     testImplementation("io.ktor:ktor-server-tests-jvm")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")

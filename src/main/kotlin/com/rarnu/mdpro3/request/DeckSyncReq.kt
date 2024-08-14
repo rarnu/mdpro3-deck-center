@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode")
 
-package com.rarnu.mdpro3.database.entity.vo
+package com.rarnu.mdpro3.request
 
 import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.util.CardSerial

@@ -7,8 +7,13 @@ import com.isyscore.kotlin.ktor.pluginCompress
 import com.isyscore.kotlin.ktor.pluginContentNegotiation
 import com.isyscore.kotlin.ktor.pluginPartialContent
 import com.rarnu.mdpro3.database.DatabaseManager
-import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseConfig
+import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseMDPro3Config
+import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseNameAPIConfig
+import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseOmegaConfig
+import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseRushDuelJPConfig
 import com.rarnu.mdpro3.define.AppVersion
+import com.rarnu.mdpro3.jp.initKanjikanaData
+import com.rarnu.mdpro3.util.Translate.initTranslateData
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 import java.time.format.DateTimeFormatter
@@ -24,10 +29,16 @@ fun main(args: Array<String>) {
 fun Application.module() {
 
     AppVersion = environment.config.propertyOrNull("ktor.application.version")?.getString() ?: "unknown"
+    // 初始化数据库
+    DatabaseManager.initMDPro3(readDatabaseMDPro3Config())
+    DatabaseManager.initNameAPI(readDatabaseNameAPIConfig())
+    DatabaseManager.initOmega(readDatabaseOmegaConfig())
+    DatabaseManager.initRushDuel(readDatabaseRushDuelJPConfig())
 
-    val (jdbcUrl, user, password) = readDatabaseConfig()
-    DatabaseManager.init(jdbcUrl, user, password)
+    initKanjikanaData()
+    initTranslateData()
 
+    // 初始化插件
     pluginCORS()
     pluginCompress()
     pluginPartialContent()

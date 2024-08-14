@@ -6,14 +6,18 @@ import com.isyscore.kotlin.ktor.PagedData
 import com.isyscore.kotlin.ktor.PagedResult
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.cache.CacheManager
-import com.rarnu.mdpro3.database.DatabaseManager.db
+import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.database.entity.fromUpdate
-import com.rarnu.mdpro3.database.entity.vo.*
 import com.rarnu.mdpro3.database.table.Decks
 import com.rarnu.mdpro3.database.table.decks
 import com.rarnu.mdpro3.define.*
 import com.rarnu.mdpro3.ext.*
+import com.rarnu.mdpro3.request.DeckDescriptionReq
+import com.rarnu.mdpro3.request.DeckPublicReq
+import com.rarnu.mdpro3.request.RankReq
+import com.rarnu.mdpro3.response.DeckLiteVO
+import com.rarnu.mdpro3.response.fromRow
 import com.rarnu.mdpro3.util.CardSerial
 import com.rarnu.mdpro3.util.IdGenerator
 import io.ktor.server.application.*
@@ -54,7 +58,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateReqUserId(req.userId) ?: return@post
         call.validateToken(req.userId) ?: return@post
         // call.record("/deck/public")
-        val ret = db.update(Decks) {
+        val ret = dbMDPro3.update(Decks) {
             set(Decks.isPublic, req.isPublic)
             where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
         } > 0
@@ -69,7 +73,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateReqUserId(req.userId) ?: return@post
         call.validateToken(req.userId) ?: return@post
         // call.record("/deck/description")
-        val ret = db.update(Decks) {
+        val ret = dbMDPro3.update(Decks) {
             set(Decks.description, req.description)
             where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
         } > 0
@@ -90,7 +94,7 @@ fun Route.deckAPI() = route("/deck") {
         it.deckMainSerial = CardSerial.getCardSerial(listOf(it.deckCoverCard1, it.deckCoverCard2, it.deckCoverCard3))
         it.isPublic = true
         val (succ, err) = try {
-            (db.decks.add(it) > 0) to ""
+            (dbMDPro3.decks.add(it) > 0) to ""
         } catch (e: Exception) {
             false to e.message
         }
@@ -114,7 +118,7 @@ fun Route.deckAPI() = route("/deck") {
         d.deckMainSerial = CardSerial.getCardSerial(listOf(d.deckCoverCard1, d.deckCoverCard2, d.deckCoverCard3))
         d.isPublic = true
         val (succ, err) = try {
-            (db.decks.update(d) > 0) to ""
+            (dbMDPro3.decks.update(d) > 0) to ""
         } catch (e: Exception) {
             false to e.message
         }
@@ -134,7 +138,7 @@ fun Route.deckAPI() = route("/deck") {
         val id = call.validateId() ?: return@delete
         // call.record("/deck/[delete]")
         val (succ, err) = try {
-            (db.decks.removeIf { it.deckId eq id } > 0) to ""
+            (dbMDPro3.decks.removeIf { it.deckId eq id } > 0) to ""
         } catch (e: Exception) {
             false to e.message
         }
@@ -154,7 +158,7 @@ fun Route.deckAPI() = route("/deck") {
         // call.record("/deck/[get]")
         val cacheKey = "deck_get_id_${id}"
         val ret = CacheManager.getOrNull(cacheKey) {
-            db.decks.find { it.deckId eq id }
+            dbMDPro3.decks.find { it.deckId eq id }
         }
         if (ret != null) {
             call.respond(Result.success(data = ret))
@@ -179,7 +183,7 @@ fun Route.deckAPI() = route("/deck") {
         val cacheKey = "deck_get_list_page_${page}_size_${size}_key_${keyWord}_con_${contributor}_like_${sortLike}_rank_${sortRank}"
 
         val ret = CacheManager.get(cacheKey) {
-            var q = db.from(Decks).select(Decks.columns).where {
+            var q = dbMDPro3.from(Decks).select(Decks.columns).where {
                 var dec = Decks.isPublic eq true
                 if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
@@ -213,7 +217,7 @@ fun Route.deckAPI() = route("/deck") {
             call.respond(Result.errorNoData(code = ERR_LIKE_TOO_NEAR.first, message = ERR_LIKE_TOO_NEAR.second))
             return@post
         }
-        val succ = db.update(Decks) {
+        val succ = dbMDPro3.update(Decks) {
             set(Decks.deckLike, Decks.deckLike plus 1)
             where { Decks.deckId eq id }
         } > 0
@@ -228,7 +232,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@post
         val id = call.validateId() ?: return@post
         // call.record("/deck/rank")
-        val succ = db.update(Decks) {
+        val succ = dbMDPro3.update(Decks) {
             set(Decks.deckRank, req.rank)
             where { Decks.deckId eq id }
         } > 0
@@ -249,7 +253,7 @@ fun Route.deckAPI() = route("/deck") {
 
         val cacheKey = "deck_get_list_lite_size_${size}_key_${keyWord}_con_${contributor}_like_${sortLike}_rank_${sortRank}"
         val ret = CacheManager.get(cacheKey) {
-            var q = db.from(Decks).select(Decks.columns).where {
+            var q = dbMDPro3.from(Decks).select(Decks.columns).where {
                 var dec = (Decks.isPublic eq true) and (Decks.isDelete eq false)
                 if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
