@@ -15,8 +15,10 @@ import com.rarnu.mdpro3.define.AppVersion
 import com.rarnu.mdpro3.jp.initKanjikanaData
 import com.rarnu.mdpro3.util.Translate.initTranslateData
 import io.ktor.server.application.*
+import io.ktor.server.plugins.ratelimit.*
 import io.ktor.server.routing.*
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.seconds
 
 fun main(args: Array<String>) {
     // 全局日期解析
@@ -43,6 +45,12 @@ fun Application.module() {
     pluginCompress()
     pluginPartialContent()
     pluginContentNegotiation(localDateTimePattern = DateTimeFormatter.ISO_DATE_TIME)
+
+    install(RateLimit) {
+        global {
+            rateLimiter(limit = 50, refillPeriod = 1.seconds)
+        }
+    }
 
     routing {
         baseApi()

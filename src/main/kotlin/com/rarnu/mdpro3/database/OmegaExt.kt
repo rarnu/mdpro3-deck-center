@@ -6,7 +6,9 @@ import com.rarnu.mdpro3.request.YdkFindReq
 import com.rarnu.mdpro3.request.YdkNamesReq
 import com.rarnu.mdpro3.response.CardDataVO
 import com.rarnu.mdpro3.response.CardNameVO
+import com.rarnu.mdpro3.util.createEntitySeq
 import com.rarnu.mdpro3.util.narrow
+import com.rarnu.mdpro3.util.toDBStr
 import com.rarnu.mdpro3.util.widen
 import org.ktorm.dsl.*
 import org.ktorm.entity.*
@@ -18,7 +20,7 @@ object Omega {
         val data = dbOmega.from(t).leftJoin(CardDatas, on = t.id eq CardDatas.id)
             .select(t.id, t.name, t.desc, CardDatas.type, CardDatas.atk, CardDatas.def, CardDatas.level, CardDatas.race, CardDatas.attribute)
             .where { t.id eq password }
-            .limit(1).map { CardDataVO.fromResultSet(it) }.firstOrNull()
+            .limit(1).map { createEntitySeq<CardDataVO>(it) }.firstOrNull()
         if (data == null) return null
         data.name = Spec.modifyName(lang, data.id, data.name)
         data.desc = Spec.modifyDesc(lang, data.id, data.type, data.desc)
@@ -45,6 +47,6 @@ object Omega {
         return dbOmega.cardTexts(req.lang).filter { it.id inList req.ids }.map { CardNameVO(it.id, Spec.modifyName(req.lang, it.id, it.name)) }
     }
 
-    fun String.toDBStr(): String = replace("'", "''").replace("\n", "").replace("\r", "")
+
 
 }

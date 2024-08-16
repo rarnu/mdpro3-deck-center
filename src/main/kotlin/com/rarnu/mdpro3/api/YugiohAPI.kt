@@ -2,8 +2,6 @@ package com.rarnu.mdpro3.api
 
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.database.Omega
-import com.rarnu.mdpro3.request.SearchReq
-import com.rarnu.mdpro3.request.toOrigin
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*

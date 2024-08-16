@@ -31,3 +31,5 @@ fun String.widen(): String {
     }
     return sb.toString()
 }
+
+fun String.toDBStr(): String = replace("'", "''").replace("\n", "").replace("\r", "")
