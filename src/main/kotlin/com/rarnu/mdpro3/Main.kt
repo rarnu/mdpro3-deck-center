@@ -35,7 +35,6 @@ fun Application.module() {
     DatabaseManager.initMDPro3(readDatabaseMDPro3Config())
     DatabaseManager.initNameAPI(readDatabaseNameAPIConfig())
     DatabaseManager.initOmega(readDatabaseOmegaConfig())
-    DatabaseManager.initRushDuel(readDatabaseRushDuelJPConfig())
 
     initKanjikanaData()
     initTranslateData()

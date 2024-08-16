@@ -16,8 +16,6 @@ object DatabaseManager {
     lateinit var dbMDPro3: Database
     lateinit var dbNameAPI: Database
     lateinit var dbOmega: Database
-    lateinit var dbRushDuelJP: Database
-    lateinit var dbRushDuelCN: Database
 
     fun initMDPro3(info: Triple<String, String, String>) {
         val dataSource = DruidDataSourceFactory.createDataSource(
@@ -56,26 +54,6 @@ object DatabaseManager {
         dbOmega = Database.connect(dataSource = dataSource, dialect = SQLiteDialect(), logger = ConsoleLogger(LogLevel.WARN))
     }
 
-    fun initRushDuel(info: Pair<String, String>) {
-        val dataSourceJp = DruidDataSourceFactory.createDataSource(
-            mapOf(
-                "driverClassName" to "org.sqlite.JDBC",
-                "url" to info.first,
-                "validationQuery" to "select 1"
-            )
-        )
-        val dataSourceCn = DruidDataSourceFactory.createDataSource(
-            mapOf(
-                "driverClassName" to "org.sqlite.JDBC",
-                "url" to info.second,
-                "validationQuery" to "select 1"
-            )
-        )
-        dbRushDuelJP = Database.connect(dataSource = dataSourceJp, dialect = SQLiteDialect(), logger = ConsoleLogger(LogLevel.WARN))
-        dbRushDuelCN = Database.connect(dataSource = dataSourceCn, dialect = SQLiteDialect(), logger = ConsoleLogger(LogLevel.WARN))
-
-    }
-
     fun Application.readDatabaseMDPro3Config(): Triple<String, String, String> {
         val jdbcUrl = environment.config.propertyOrNull("database.mdpro3.jdbcUrl")?.getString() ?: ""
         val user = environment.config.propertyOrNull("database.mdpro3.user")?.getString() ?: ""
@@ -91,11 +69,5 @@ object DatabaseManager {
     }
 
     fun Application.readDatabaseOmegaConfig(): String = environment.config.propertyOrNull("database.omega.jdbcUrl")?.getString() ?: ""
-
-    fun Application.readDatabaseRushDuelJPConfig(): Pair<String, String> {
-        val jp = environment.config.propertyOrNull("database.rushduel.jdbcUrlJp")?.getString() ?: ""
-        val cn = environment.config.propertyOrNull("database.rushduel.jdbcUrlCn")?.getString() ?: ""
-        return jp join cn
-    }
 
 }
