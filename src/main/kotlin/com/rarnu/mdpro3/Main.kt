@@ -10,7 +10,6 @@ import com.rarnu.mdpro3.database.DatabaseManager
 import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseMDPro3Config
 import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseNameAPIConfig
 import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseOmegaConfig
-import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseRushDuelJPConfig
 import com.rarnu.mdpro3.define.AppVersion
 import com.rarnu.mdpro3.jp.initKanjikanaData
 import com.rarnu.mdpro3.util.Translate.initTranslateData
