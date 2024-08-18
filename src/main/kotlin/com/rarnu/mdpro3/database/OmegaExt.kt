@@ -1,12 +1,12 @@
 package com.rarnu.mdpro3.database
 
+import com.isyscore.kotlin.common.createEntitySeq
 import com.rarnu.mdpro3.database.DatabaseManager.dbOmega
 import com.rarnu.mdpro3.database.table.*
 import com.rarnu.mdpro3.request.YdkFindReq
 import com.rarnu.mdpro3.request.YdkNamesReq
 import com.rarnu.mdpro3.response.CardDataVO
 import com.rarnu.mdpro3.response.CardNameVO
-import com.rarnu.mdpro3.util.createEntitySeq
 import com.rarnu.mdpro3.util.narrow
 import com.rarnu.mdpro3.util.toDBStr
 import com.rarnu.mdpro3.util.widen
