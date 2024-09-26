@@ -1,5 +1,12 @@
 package com.rarnu.mdpro3.define
 
+val HTTP_ERR_SERVER = 500 to ""
+val HTTP_ERR_BAD_REQUEST = 400 to "客户端请求接口 [%s] 时，请求内容错误"
+val HTTP_ERR_NOT_FOUND = 404 to "请求的路由 [%s] 不存在"
+val HTTP_ERR_METHOD_NOT_ALLOWED = 405 to "路由 [%s] 不支持 [%s] 请求方式"
+val HTTP_ERR_REQUEST_TIMEOUT = 408 to "请求路由 [%s] 超时"
+val HTTP_ERR_RATE_LIMIT_EXCEEDED = 429 to "接口 [%s] 不能在当前被请求，已超过限流设置"
+
 val ERR_UPLOAD_DECK = 1 to "上传卡组错误"
 val ERR_NO_CONTRIBUTOR = 2 to "没有传入贡献者"
 val ERR_NO_DECK_ID = 3 to "没有传入卡组 ID"

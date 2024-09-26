@@ -32,7 +32,7 @@ fun Route.syncAPI() = route("/sync") {
         // call.record("/sync/[get]")
         val cacheKey = "sync_get_user_$userId"
         val ret = CacheManager.get(cacheKey, isPublic = false) {
-            dbMDPro3.decks.filter { it.userId eq userId }.sortedBy { it.deckUpdateDate.desc() }.sortedBy { it.deckUploadDate.desc() }.map { it }
+            dbMDPro3.decks.filter { (it.userId eq userId) and (it.isDelete eq false) }.sortedBy { it.deckUpdateDate.desc() }.sortedBy { it.deckUploadDate.desc() }.map { it }
         }
         call.respond(Result.success(data = ret))
     }

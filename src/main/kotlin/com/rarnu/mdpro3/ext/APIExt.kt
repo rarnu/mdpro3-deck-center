@@ -2,6 +2,7 @@ package com.rarnu.mdpro3.ext
 
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.api.validateWord
+import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.entity.Deck
 import com.rarnu.mdpro3.response.ResultWithValue
 import com.rarnu.mdpro3.define.*
@@ -120,7 +121,10 @@ suspend fun ApplicationCall.validateToken(userId: Long): Boolean? {
         respond(Result.errorNoData(code = ERR_NO_TOKEN.first, message = ERR_NO_TOKEN.second))
         return null
     }
-    return MCTokenValidation.validate(token, userId)
+    val cacheKey = "mc_${userId}_$token"
+    return CacheManager.getMcValidated(cacheKey) {
+        MCTokenValidation.validate(token, userId)
+    }
 }
 
 fun List<String>.isValidYdk(): Boolean {
@@ -136,12 +140,3 @@ fun List<String>.isValidYdk(): Boolean {
     }
     return count >= 40
 }
-
-//fun ApplicationCall.record(api: String) {
-//    // 获取客户端的源头，可以是 Android/iOS/Web/Windows/Mac/Linux 等
-//    val src = request.header("ClientSource") ?: "Unknown"
-//    // 获取请求方的 IP 地址
-//    val ip = request.origin.remoteHost
-//    val ua = request.userAgent() ?: "Unknown"
-//    StatisticsCache.addSource(ip, src, ua, api)
-//}

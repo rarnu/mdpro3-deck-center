@@ -10,6 +10,7 @@ fun Route.baseApi() = route("/api") {
         deckAPI()
         syncAPI()
         sensitiveWordAPI()
+        userConfigApi()
     }
     // 制卡器
     yugiohApi()

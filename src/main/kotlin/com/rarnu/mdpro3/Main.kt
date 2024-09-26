@@ -2,22 +2,24 @@ package com.rarnu.mdpro3
 
 import com.isyscore.kotlin.common.LOCAL_DATETIME_PATTERN
 import com.isyscore.kotlin.common.LOCAL_DATE_PATTERN
-import com.isyscore.kotlin.ktor.pluginCORS
-import com.isyscore.kotlin.ktor.pluginCompress
-import com.isyscore.kotlin.ktor.pluginContentNegotiation
-import com.isyscore.kotlin.ktor.pluginPartialContent
+import com.isyscore.kotlin.ktor.*
 import com.rarnu.mdpro3.database.DatabaseManager
 import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseMDPro3Config
 import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseNameAPIConfig
 import com.rarnu.mdpro3.database.DatabaseManager.readDatabaseOmegaConfig
-import com.rarnu.mdpro3.define.AppVersion
 import com.rarnu.mdpro3.jp.initKanjikanaData
 import com.rarnu.mdpro3.util.Translate.initTranslateData
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.ratelimit.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import java.time.format.DateTimeFormatter
 import kotlin.time.Duration.Companion.seconds
+import com.isyscore.kotlin.ktor.Result
+import com.rarnu.mdpro3.define.*
 
 fun main(args: Array<String>) {
     // 全局日期解析
@@ -46,8 +48,39 @@ fun Application.module() {
 
     install(RateLimit) {
         global {
-            rateLimiter(limit = 50, refillPeriod = 1.seconds)
+            rateLimiter(limit = 500, refillPeriod = 1.seconds)
         }
+    }
+
+    // 全局异常处理
+    install(StatusPages) {
+
+        status(HttpStatusCode.BadRequest) { call, _ ->
+            call.errorRespond(HTTP_ERR_BAD_REQUEST, call.request.path())
+        }
+
+        status(HttpStatusCode.NotFound) { call, _ ->
+            call.errorRespond(HTTP_ERR_NOT_FOUND, call.request.path())
+        }
+
+        status(HttpStatusCode.MethodNotAllowed) { call, _ ->
+            call.errorRespond(HTTP_ERR_METHOD_NOT_ALLOWED, call.request.path(), call.request.httpMethod.value)
+        }
+
+        status(HttpStatusCode.TooManyRequests) { call, _ ->
+            call.errorRespond(HTTP_ERR_RATE_LIMIT_EXCEEDED, call.request.path())
+        }
+
+        status(HttpStatusCode.RequestTimeout) { call, _ ->
+            call.errorRespond(HTTP_ERR_REQUEST_TIMEOUT, call.request.path())
+
+        }
+
+        exception<Throwable> { call, cause ->
+            // 接到全局异常
+            call.respond(Result.errorNoData(code = HTTP_ERR_SERVER.first, message = "$cause"))
+        }
+
     }
 
     routing {

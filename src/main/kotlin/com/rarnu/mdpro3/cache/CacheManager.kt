@@ -23,6 +23,11 @@ object CacheManager {
      */
     private val likeCache: Cache<String, Boolean> = CacheBuilder.newBuilder().expireAfterWrite(10L, TimeUnit.MINUTES).build()
 
+    /**
+     * MC 验证缓存，有效期 1 小时
+     */
+    private val mcValidateCache: Cache<String, Boolean> = CacheBuilder.newBuilder().expireAfterWrite(1L, TimeUnit.HOURS).build()
+
     fun <T : Any> getOrNull(key: String, isPublic: Boolean = true, block: () -> T?): T? {
         var obj = (if (isPublic) publicCache else privateDeckCache).getIfPresent(key) as? T
         if (obj == null) {
@@ -44,4 +49,6 @@ object CacheManager {
     fun accessLike(key: String) {
         likeCache.put(key, true)
     }
+
+    fun getMcValidated(key: String, block: () -> Boolean): Boolean = mcValidateCache.get(key, block)
 }

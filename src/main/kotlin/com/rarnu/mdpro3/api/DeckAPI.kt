@@ -184,7 +184,7 @@ fun Route.deckAPI() = route("/deck") {
 
         val ret = CacheManager.get(cacheKey) {
             var q = dbMDPro3.from(Decks).select(Decks.columns).where {
-                var dec = Decks.isPublic eq true
+                var dec = (Decks.isPublic eq true) and (Decks.isDelete eq false)
                 if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
                 if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
                 dec
@@ -245,7 +245,7 @@ fun Route.deckAPI() = route("/deck") {
     get("/list/lite") {
         call.validateSource() ?: return@get
         // call.record("/deck/list/lite")
-        val size = kotlin.math.min(call.request.queryParameters["size"]?.toIntOrNull() ?: 1000, 1000)
+        val size = kotlin.math.min(call.request.queryParameters["size"]?.toIntOrNull() ?: 100, 100)
         val keyWord = call.request.queryParameters["keyWord"]
         val sortLike = call.request.queryParameters["sortLike"]?.toBoolean() ?: false
         val sortRank = call.request.queryParameters["sortRank"]?.toBoolean() ?: false

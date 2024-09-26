@@ -24,6 +24,3 @@ database:
     password: rootroot
   omega:
     jdbcUrl: "jdbc:sqlite:files/OmegaDB.cdb"
-  rushduel:
-    jdbcUrlJp: "jdbc:sqlite:files/RushDuelJP.cdb"
-    jdbcUrlCn: "jdbc:sqlite:files/RushDuelCN.cdb"

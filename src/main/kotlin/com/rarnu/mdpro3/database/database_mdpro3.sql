@@ -57,4 +57,18 @@ create table client_source
 ) character set utf8mb4;
 
 -- 2024.07.12
-alter table deck add column is_delete int not null default 0; -- 是否已删除,0未删，1:已删
+alter table deck
+    add column is_delete int not null default 0;
+-- 是否已删除,0未删，1:已删
+
+-- 用户配置表
+create table user_config
+(
+    user_id bigint not null primary key, -- 用户 ID，主键
+    config  longtext,                    -- 配置信息，以 json 保存
+    extra1  longtext,                    -- 额外信息1
+    extra2  longtext,                    -- 额外信息2
+    extra3  longtext,                    -- 额外信息3
+    extra4  longtext,                    -- 额外信息4
+    extra5  longtext                     -- 额外信息5
+) character set utf8mb4;

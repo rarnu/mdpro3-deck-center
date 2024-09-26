@@ -11,32 +11,30 @@ import com.rarnu.mdpro3.jp.removeKana
 
 fun Route.kanjikanaAPI() = route("/kanjikana") {
 
-
     post<KKNameReq>("/name") { req ->
-        if (req.name.isBlank()) {
-            call.respond(HttpStatusCode.InternalServerError, Result.errorNoData())
-            return@post
-        }
+        call.validateName(req) ?: return@post
         val name = NameAPI.nameKanjiKana(removeKana(req.name))
         call.respond(Result.success(message = if (name.isBlank()) "not found" else "found", data = name))
     }
 
 
     post<KKNameReq>("/effect") { req ->
-        if (req.name.isBlank()) {
-            call.respond(HttpStatusCode.InternalServerError, Result.errorNoData())
-            return@post
-        }
+        call.validateName(req) ?: return@post
         val name = NameAPI.effectKanjiKana(removeKana(req.name))
         call.respond(Result.success(message = if (name.isBlank()) "not found" else "found", data = name))
     }
 
     post<KKNameReq>("/text") { req ->
-        if (req.name.isBlank()) {
-            call.respond(HttpStatusCode.InternalServerError, Result.errorNoData())
-            return@post
-        }
+        call.validateName(req) ?: return@post
         val name = NameAPI.normalKanjiKana(removeKana(req.name))
         call.respond(Result.success(message = if (name.isBlank()) "not found" else "found", data = name))
     }
+}
+
+private suspend fun ApplicationCall.validateName(req: KKNameReq): Boolean? {
+    if (req.name.isBlank()) {
+        respond(HttpStatusCode.InternalServerError, Result.errorNoData())
+        return null
+    }
+    return true
 }

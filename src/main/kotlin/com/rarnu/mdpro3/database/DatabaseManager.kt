@@ -16,13 +16,13 @@ object DatabaseManager {
     lateinit var dbOmega: Database
 
     fun initMDPro3(info: Triple<String, String, String>) {
-        val (db, err) = databasePoolOf("com.mysql.cj.jdbc.Driver", info.first, info.second, info.third, MySqlDialect())
+        val (db, err) = databasePoolOf("com.mysql.cj.jdbc.Driver", info.first, info.second, info.third, MySqlDialect(), maxActive = 20)
         if (err != null) throw err
         dbMDPro3 = db!!
     }
 
     fun initNameAPI(info: Triple<String, String, String>) {
-        val (db, err) = databasePoolOf("com.mysql.cj.jdbc.Driver", info.first, info.second, info.third, MySqlDialect())
+        val (db, err) = databasePoolOf("com.mysql.cj.jdbc.Driver", info.first, info.second, info.third, MySqlDialect(), maxActive = 20)
         if (err != null) throw err
         dbNameAPI = db!!
     }
