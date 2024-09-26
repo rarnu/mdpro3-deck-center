@@ -61,6 +61,9 @@ alter table deck
     add column is_delete int not null default 0;
 -- 是否已删除,0未删，1:已删
 
+
+-- 2024.09.26
+
 -- 用户配置表
 create table user_config
 (
@@ -72,3 +75,8 @@ create table user_config
     extra4  longtext,                    -- 额外信息4
     extra5  longtext                     -- 额外信息5
 ) character set utf8mb4;
+CREATE INDEX idx_delete ON deck (is_delete);
+CREATE INDEX idx_userid ON deck (user_id);
+CREATE INDEX idx_upload ON deck (deck_upload_date);
+CREATE INDEX idx_update ON deck (deck_update_date);
+
