@@ -20,6 +20,7 @@ import java.time.format.DateTimeFormatter
 import kotlin.time.Duration.Companion.seconds
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.define.*
+import com.rarnu.mdpro3.util.SnowFlakeManager.initSnowFlake
 
 fun main(args: Array<String>) {
     // 全局日期解析
@@ -37,6 +38,7 @@ fun Application.module() {
     DatabaseManager.initNameAPI(readDatabaseNameAPIConfig())
     DatabaseManager.initOmega(readDatabaseOmegaConfig())
 
+    initSnowFlake()
     initKanjikanaData()
     initTranslateData()
 

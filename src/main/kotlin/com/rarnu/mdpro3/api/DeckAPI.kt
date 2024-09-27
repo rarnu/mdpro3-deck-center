@@ -19,7 +19,7 @@ import com.rarnu.mdpro3.request.RankReq
 import com.rarnu.mdpro3.response.DeckLiteVO
 import com.rarnu.mdpro3.response.fromRow
 import com.rarnu.mdpro3.util.CardSerial
-import com.rarnu.mdpro3.util.IdGenerator
+import com.rarnu.mdpro3.util.SnowFlakeManager
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
@@ -36,7 +36,7 @@ fun Route.deckAPI() = route("/deck") {
     get("/deckId") {
         call.validateSource() ?: return@get
         // call.record("/deck/deckId")
-        call.respond(Result.success(data = IdGenerator.nextIdDB()))
+        call.respond(Result.success(data = SnowFlakeManager.nextSnowId().toString()))
     }
 
     /**
@@ -46,7 +46,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@get
         // call.record("/deck/deckIds")
         val count = call.request.queryParameters["count"]?.toIntOrNull() ?: 0
-        val ret = (0 until count).map { IdGenerator.nextIdDB() }
+        val ret = (0 until count).map { SnowFlakeManager.nextSnowId().toString() }
         call.respond(Result.success(data = ret))
     }
 
@@ -88,7 +88,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@post
         call.validateDeck(it, false) ?: return@post
         // call.record("/deck/upload")
-        it.deckId = IdGenerator.nextIdDB()
+        it.deckId = SnowFlakeManager.nextSnowId().toString() // IdGenerator.nextIdDB()
         it.deckUploadDate = LocalDateTime.now()
         it.deckUpdateDate = LocalDateTime.now()
         it.deckMainSerial = CardSerial.getCardSerial(listOf(it.deckCoverCard1, it.deckCoverCard2, it.deckCoverCard3))
@@ -185,14 +185,15 @@ fun Route.deckAPI() = route("/deck") {
         val ret = CacheManager.get(cacheKey) {
             var q = dbMDPro3.from(Decks).select(Decks.columns).where {
                 var dec = (Decks.isPublic eq true) and (Decks.isDelete eq false)
-                if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
-                if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
+                if (!keyWord.isNullOrBlank()) dec = dec and (Decks.deckName like "$keyWord%")
+                // 暂时去掉这个条件
+                // if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "$contributor%")
                 dec
             }
             q = when {
                 sortLike -> q.orderBy(Decks.deckLike.desc())
-                sortRank -> q.orderBy(Decks.deckRank.desc())
-                else -> q.orderBy(Decks.deckUpdateDate.desc(), Decks.deckUploadDate.desc())
+                // sortRank -> q.orderBy(Decks.deckRank.desc())
+                else -> q.orderBy(Decks.deckUpdateDate.desc())
             }
             q = q.limit((page - 1) * size, size)
             val total = q.totalRecordsInAllPages
@@ -245,7 +246,7 @@ fun Route.deckAPI() = route("/deck") {
     get("/list/lite") {
         call.validateSource() ?: return@get
         // call.record("/deck/list/lite")
-        val size = kotlin.math.min(call.request.queryParameters["size"]?.toIntOrNull() ?: 100, 100)
+        val size = kotlin.math.min(call.request.queryParameters["size"]?.toIntOrNull() ?: 1000, 1000)
         val keyWord = call.request.queryParameters["keyWord"]
         val sortLike = call.request.queryParameters["sortLike"]?.toBoolean() ?: false
         val sortRank = call.request.queryParameters["sortRank"]?.toBoolean() ?: false
@@ -255,14 +256,15 @@ fun Route.deckAPI() = route("/deck") {
         val ret = CacheManager.get(cacheKey) {
             var q = dbMDPro3.from(Decks).select(Decks.columns).where {
                 var dec = (Decks.isPublic eq true) and (Decks.isDelete eq false)
-                if (!keyWord.isNullOrBlank()) dec = dec and ((Decks.deckName like "%$keyWord%") or (Decks.deckId like "%$keyWord%"))
-                if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
+                if (!keyWord.isNullOrBlank()) dec = dec and (Decks.deckName like "$keyWord%")
+                // 暂时去掉这个条件
+                // if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
                 dec
             }
             q = when {
                 sortLike -> q.orderBy(Decks.deckLike.desc())
-                sortRank -> q.orderBy(Decks.deckRank.desc())
-                else -> q.orderBy(Decks.deckUpdateDate.desc(), Decks.deckUploadDate.desc())
+                // sortRank -> q.orderBy(Decks.deckRank.desc())
+                else -> q.orderBy(Decks.deckUpdateDate.desc())
             }
             q = q.limit(size)
             q.map { DeckLiteVO.fromRow(it) }

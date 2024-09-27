@@ -3,18 +3,18 @@ create database mdpro3;
 -- 卡组表
 create table deck
 (
-    deck_id          varchar(64)  not null primary key,               -- 主键ID
-    deck_contributor varchar(128) not null,                           -- 贡献者
-    deck_name        varchar(128) not null,                           -- 卡组名称
-    deck_rank        int          not null default 0,                 -- 流行程度，用于排序
-    deck_like        int          not null default 0,                 -- 点赞数
-    deck_upload_date datetime     not null default NOW(),             -- 卡组上传时间
-    deck_update_date datetime              default null default null, -- 卡组的更新时间
-    deck_cover_card1 bigint       not null default 0,                 -- 卡组封面卡1
-    deck_cover_card2 bigint       not null default 0,                 -- 卡组封面卡2
-    deck_cover_card3 bigint       not null default 0,                 -- 卡组封面卡3
-    deck_main_serial varchar(512) not null default '',                -- 卡组的主要系列，通过封面卡获取
-    deck_ydk         longtext                                         -- YDK 内容
+    deck_id          varchar(64)  not null primary key,   -- 主键ID
+    deck_contributor varchar(128) not null,               -- 贡献者
+    deck_name        varchar(128) not null,               -- 卡组名称
+    deck_rank        int          not null default 0,     -- 流行程度，用于排序
+    deck_like        int          not null default 0,     -- 点赞数
+    deck_upload_date datetime     not null default NOW(), -- 卡组上传时间
+    deck_update_date datetime     not null default NOW(), -- 卡组的更新时间
+    deck_cover_card1 bigint       not null default 0,     -- 卡组封面卡1
+    deck_cover_card2 bigint       not null default 0,     -- 卡组封面卡2
+    deck_cover_card3 bigint       not null default 0,     -- 卡组封面卡3
+    deck_main_serial varchar(512) not null default '',    -- 卡组的主要系列，通过封面卡获取
+    deck_ydk         longtext                             -- YDK 内容
 ) character set utf8mb4;
 
 alter table deck
@@ -75,8 +75,11 @@ create table user_config
     extra4  longtext,                    -- 额外信息4
     extra5  longtext                     -- 额外信息5
 ) character set utf8mb4;
-CREATE INDEX idx_delete ON deck (is_delete);
-CREATE INDEX idx_userid ON deck (user_id);
-CREATE INDEX idx_upload ON deck (deck_upload_date);
-CREATE INDEX idx_update ON deck (deck_update_date);
 
+-- 创建额外的索引
+
+create index idx_pub_del on deck (is_delete, is_public);
+create index idx_name on deck (deck_name);
+CREATE INDEX idx_userid ON deck (user_id);
+CREATE INDEX idx_update ON deck (deck_update_date);
+create index idx_like on deck (deck_like);
