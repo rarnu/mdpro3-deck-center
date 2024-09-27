@@ -1,5 +1,7 @@
 package com.rarnu.mdpro3.util
 
+import com.isyscore.kotlin.common.hash
+
 object SnowFlakeManager {
 
     /**
@@ -36,7 +38,10 @@ object SnowFlakeManager {
         sf = SnowFlake(dcId, mcId)
     }
 
-    fun nextSnowId(): Long = sf.nextId()
+    // fun nextSnowId(): Long = sf.nextId()
+
+    fun nextSnowId(): String = sf.nextId().toString().hash("MD5").take(10)
+
 
     class SnowFlake(private val dataCenterId: Long, private val machineId: Long) {
         private var sequence = 0L   // 序列号

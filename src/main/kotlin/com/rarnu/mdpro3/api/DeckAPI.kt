@@ -36,7 +36,7 @@ fun Route.deckAPI() = route("/deck") {
     get("/deckId") {
         call.validateSource() ?: return@get
         // call.record("/deck/deckId")
-        call.respond(Result.success(data = SnowFlakeManager.nextSnowId().toString()))
+        call.respond(Result.success(data = SnowFlakeManager.nextSnowId()))
     }
 
     /**
@@ -46,7 +46,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@get
         // call.record("/deck/deckIds")
         val count = call.request.queryParameters["count"]?.toIntOrNull() ?: 0
-        val ret = (0 until count).map { SnowFlakeManager.nextSnowId().toString() }
+        val ret = (0 until count).map { SnowFlakeManager.nextSnowId() }
         call.respond(Result.success(data = ret))
     }
 
@@ -88,7 +88,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateSource() ?: return@post
         call.validateDeck(it, false) ?: return@post
         // call.record("/deck/upload")
-        it.deckId = SnowFlakeManager.nextSnowId().toString() // IdGenerator.nextIdDB()
+        it.deckId = SnowFlakeManager.nextSnowId() // IdGenerator.nextIdDB()
         it.deckUploadDate = LocalDateTime.now()
         it.deckUpdateDate = LocalDateTime.now()
         it.deckMainSerial = CardSerial.getCardSerial(listOf(it.deckCoverCard1, it.deckCoverCard2, it.deckCoverCard3))
