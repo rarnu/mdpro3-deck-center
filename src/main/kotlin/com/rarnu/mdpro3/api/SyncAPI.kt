@@ -6,7 +6,6 @@ import com.rarnu.mdpro3.database.table.decks
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.ktorm.dsl.desc
 import org.ktorm.dsl.eq
 import com.isyscore.kotlin.ktor.Result
 import com.rarnu.mdpro3.request.MultiSyncReq
@@ -15,6 +14,7 @@ import com.rarnu.mdpro3.request.SyncDeckReq
 import com.rarnu.mdpro3.request.toDeck
 import com.rarnu.mdpro3.define.ERR_SYNC_FAIL
 import com.rarnu.mdpro3.ext.*
+import com.rarnu.mdpro3.util.SnowFlakeManager
 import org.ktorm.dsl.and
 import org.ktorm.entity.*
 
@@ -32,7 +32,12 @@ fun Route.syncAPI() = route("/sync") {
         // call.record("/sync/[get]")
         val cacheKey = "sync_get_user_$userId"
         val ret = CacheManager.get(cacheKey, isPublic = false) {
-            dbMDPro3.decks.filter { (it.userId eq userId) and (it.isDelete eq false) }.sortedByDescending { it.deckUpdateDate }.map { it }
+            // 只查 userId，因为被删除的卡组也要返回
+            dbMDPro3.decks.filter { it.userId eq userId }.sortedByDescending { it.deckUpdateDate }.map {
+                // 如果是已删的卡组，将 ydk 内容置空
+                if (it.isDelete) it.deckYdk = ""
+                it
+            }
         }
         call.respond(Result.success(data = ret))
     }
@@ -95,6 +100,8 @@ private fun syncDeck(dr: SyncDeckReq, userId: Long, contributor: String): Boolea
         val deck = dbMDPro3.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
         if (deck != null) {
             deck.isDelete = true
+            //　将卡组名称改为 del　+ 随机码，以便允许用户再写入相同的卡组名
+            deck.deckName = "del_" + SnowFlakeManager.nextSnowId() + "_eted"
             dbMDPro3.decks.update(deck) > 0
         } else false
     } else {
