@@ -50,8 +50,10 @@ fun SyncDeckReq.toDeck(userId: Long, contributor: String = "", isUpdate: Boolean
     d.userId = userId
     d.deckMainSerial = CardSerial.getCardSerial(listOf(deckCoverCard1, deckCoverCard2, deckCoverCard3))
     if (!isUpdate) {
+        // 如果不是更新(是新增)，则写入 upload_date
         d.deckUploadDate = LocalDateTime.now()
     }
+    // 任何情况都会写入 update_date
     d.deckUpdateDate = LocalDateTime.now()
     return d
 }

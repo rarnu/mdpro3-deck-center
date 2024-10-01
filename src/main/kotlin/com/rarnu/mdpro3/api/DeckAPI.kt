@@ -185,9 +185,8 @@ fun Route.deckAPI() = route("/deck") {
         val ret = CacheManager.get(cacheKey) {
             var q = dbMDPro3.from(Decks).select(Decks.columns).where {
                 var dec = (Decks.isPublic eq true) and (Decks.isDelete eq false)
-                if (!keyWord.isNullOrBlank()) dec = dec and (Decks.deckName like "$keyWord%")
-                // 暂时去掉这个条件
-                // if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "$contributor%")
+                if (!keyWord.isNullOrBlank() && keyWord.length >= 2) dec = dec and (Decks.deckName like "$keyWord%")
+                if (!contributor.isNullOrBlank() && contributor.length >= 2) dec = dec and (Decks.deckContributor like "$contributor%")
                 dec
             }
             q = when {
@@ -256,9 +255,8 @@ fun Route.deckAPI() = route("/deck") {
         val ret = CacheManager.get(cacheKey) {
             var q = dbMDPro3.from(Decks).select(Decks.columns).where {
                 var dec = (Decks.isPublic eq true) and (Decks.isDelete eq false)
-                if (!keyWord.isNullOrBlank()) dec = dec and (Decks.deckName like "$keyWord%")
-                // 暂时去掉这个条件
-                // if (!contributor.isNullOrBlank()) dec = dec and (Decks.deckContributor like "%$contributor%")
+                if (!keyWord.isNullOrBlank() && keyWord.length >= 2) dec = dec and (Decks.deckName like "$keyWord%")
+                if (!contributor.isNullOrBlank() && contributor.length >= 2) dec = dec and (Decks.deckContributor like "$contributor%")
                 dec
             }
             q = when {

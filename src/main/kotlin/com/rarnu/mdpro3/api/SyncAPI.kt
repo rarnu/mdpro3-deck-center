@@ -15,6 +15,7 @@ import com.rarnu.mdpro3.request.toDeck
 import com.rarnu.mdpro3.define.ERR_SYNC_FAIL
 import com.rarnu.mdpro3.ext.*
 import com.rarnu.mdpro3.util.SnowFlakeManager
+import io.ktor.server.request.*
 import org.ktorm.dsl.and
 import org.ktorm.entity.*
 
@@ -61,7 +62,7 @@ fun Route.syncAPI() = route("/sync") {
                 // 清掉缓存，防止影响查询
                 val cacheKey2 = "deck_get_id_${it.deckId}"
                 CacheManager.clean(cacheKey2)
-                syncDeck(it, req.userId, req.deckContributor)
+                call.syncDeck(it, req.userId, req.deckContributor)
             }
             try {
                 trans.commit()
@@ -84,7 +85,7 @@ fun Route.syncAPI() = route("/sync") {
         call.validateReqUserId(req.userId) ?: return@post
         call.validateToken(req.userId) ?: return@post
         // call.record("/sync/single")
-        val ret = syncDeck(req.deck, req.userId, req.deckContributor)
+        val ret = call.syncDeck(req.deck, req.userId, req.deckContributor)
         // 清掉缓存，防止影响查询
         val cacheKey = "sync_get_user_${req.userId}"
         CacheManager.clean(cacheKey, isPublic = false)
@@ -94,7 +95,7 @@ fun Route.syncAPI() = route("/sync") {
     }
 }
 
-private fun syncDeck(dr: SyncDeckReq, userId: Long, contributor: String): Boolean =
+private fun ApplicationCall.syncDeck(dr: SyncDeckReq, userId: Long, contributor: String): Boolean = try {
     if (dr.isDelete) {
         // 如果是删除，打个删除标签，不做物理删除
         val deck = dbMDPro3.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
@@ -102,19 +103,36 @@ private fun syncDeck(dr: SyncDeckReq, userId: Long, contributor: String): Boolea
             deck.isDelete = true
             //　将卡组名称改为 del　+ 随机码，以便允许用户再写入相同的卡组名
             deck.deckName = "del_" + SnowFlakeManager.nextSnowId() + "_eted"
-            dbMDPro3.decks.update(deck) > 0
-        } else false
+            val succ = dbMDPro3.decks.update(deck) > 0
+            // application.log.error("请求删除卡组 [${request.path()}] [user = $userId] [deck = ${dr.deckId}] 删除情况: $succ")
+            succ
+        } else {
+            // application.log.error("请求删除卡组 [${request.path()}] [user = $userId] [deck = ${dr.deckId}] 卡组不存在")
+            false
+        }
     } else {
+        // 如果不是删除，先找这个卡组
         var deck = dbMDPro3.decks.find { (it.deckId eq dr.deckId) and (it.userId eq userId) }
         if (deck == null) {
-            // 新增
+            // 如果没找到，新增
             deck = dr.toDeck(userId, contributor)
-            dbMDPro3.decks.add(deck) > 0
+            val succ = dbMDPro3.decks.add(deck) > 0
+            // application.log.error("请求新增卡组 [${request.path()}] [user = $userId] [deck = ${dr.deckId}] 新增情况: $succ")
+            succ
         } else {
+            // 如果找到了，并且不是已删除状态，则更新
             if (!deck.isDelete) {
-                // 如果卡组没有被删除，则更新它
                 deck = dr.toDeck(userId, contributor, isUpdate = true)
-                dbMDPro3.decks.update(deck) > 0
-            } else false
+                val succ = dbMDPro3.decks.update(deck) > 0
+                // application.log.error("请求更新卡组 [${request.path()}] [user = $userId] [deck = ${dr.deckId}] 更新情况: $succ")
+                succ
+            } else {
+                // application.log.error("请求更新卡组 [${request.path()}] [user = $userId] [deck = ${dr.deckId}] 卡组不存在")
+                false
+            }
         }
     }
+} catch (e: Exception) {
+    // application.log.error("请求同步卡组 [${request.path()}] [user = $userId] [deck = ${dr.deckId}] 失败，原因是: $e")
+    false
+}

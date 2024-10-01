@@ -80,6 +80,7 @@ create table user_config
 
 create index idx_pub_del on deck (is_delete, is_public);
 create index idx_name on deck (deck_name);
+create index idx_contributor on deck (deck_contributor);
 CREATE INDEX idx_userid ON deck (user_id);
 CREATE INDEX idx_update ON deck (deck_update_date);
 create index idx_like on deck (deck_like);

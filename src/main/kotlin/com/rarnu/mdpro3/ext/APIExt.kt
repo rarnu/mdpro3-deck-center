@@ -53,6 +53,7 @@ suspend fun ApplicationCall.validateDeck(deck: Deck, needId: Boolean = false): B
 suspend fun ApplicationCall.validateUserId(): Long? {
     val userId = parameters["userId"]?.toLongOrNull()
     if (userId == null) {
+        // application.log.error("请求 [${request.path()}] 没有提供 userId 参数")
         respond(Result.errorNoData(code = ERR_NO_USER_ID.first, message = ERR_NO_USER_ID.second))
         return null
     }
@@ -79,6 +80,7 @@ suspend fun ApplicationCall.validateId(): String? {
 suspend fun ApplicationCall.validateSource(): Boolean? {
     val src = request.header("ReqSource")
     if (src.isNullOrBlank() || src != "MDPro3") {
+        // application.log.error("请求 [${request.path()}] 没有提供合法的 ReqSource")
         respond(Result.errorNoData(code = ERR_REQ_SOURCE.first, message = ERR_REQ_SOURCE.second))
         return null
     }
@@ -118,6 +120,7 @@ suspend fun ApplicationCall.validateDauMonth(): Int? {
 suspend fun ApplicationCall.validateToken(userId: Long): Boolean? {
     val token = request.header("token")
     if (token.isNullOrBlank()) {
+        // application.log.error("请求 [${request.path()}] 没有提供 token")
         respond(Result.errorNoData(code = ERR_NO_TOKEN.first, message = ERR_NO_TOKEN.second))
         return null
     }
