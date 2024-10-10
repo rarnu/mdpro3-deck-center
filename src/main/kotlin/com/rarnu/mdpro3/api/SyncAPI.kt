@@ -15,7 +15,6 @@ import com.rarnu.mdpro3.request.toDeck
 import com.rarnu.mdpro3.define.ERR_SYNC_FAIL
 import com.rarnu.mdpro3.ext.*
 import com.rarnu.mdpro3.util.SnowFlakeManager
-import io.ktor.server.request.*
 import org.ktorm.dsl.and
 import org.ktorm.entity.*
 
@@ -39,6 +38,23 @@ fun Route.syncAPI() = route("/sync") {
                 if (it.isDelete) it.deckYdk = ""
                 it
             }
+        }
+        call.respond(Result.success(data = ret))
+    }
+
+    /**
+     * 获取指定用户的卡组列表（不返回已删的卡组）
+     *
+     * 这里的卡组列表是带有 ydk 内容的
+     */
+    get("/{userId}/nodel") {
+        call.validateSource() ?: return@get
+        val userId = call.validateUserId() ?: return@get
+        call.validateToken(userId) ?: return@get
+        // call.record("/sync/[get]")
+        val cacheKey = "sync_get_user_${userId}_nodel"
+        val ret = CacheManager.get(cacheKey, isPublic = false) {
+            dbMDPro3.decks.filter { (it.userId eq userId) and (it.isDelete eq false) }.sortedByDescending { it.deckUpdateDate }.map { it }
         }
         call.respond(Result.success(data = ret))
     }
