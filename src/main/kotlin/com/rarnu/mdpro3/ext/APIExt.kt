@@ -1,15 +1,21 @@
+@file:Suppress("DuplicatedCode")
+
 package com.rarnu.mdpro3.ext
 
-import com.isyscore.kotlin.ktor.Result
+import com.isyscore.kotlin.ktor.errorRespond
 import com.rarnu.mdpro3.api.validateWord
 import com.rarnu.mdpro3.cache.CacheManager
+import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.database.entity.Deck
-import com.rarnu.mdpro3.response.ResultWithValue
+import com.rarnu.mdpro3.database.table.users
 import com.rarnu.mdpro3.define.*
+import com.rarnu.mdpro3.response.ResultWithValue
 import com.rarnu.mdpro3.util.MCTokenValidation
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import org.ktorm.dsl.eq
+import org.ktorm.entity.find
 
 /**
  * 验证卡组信息是否正确
@@ -17,16 +23,16 @@ import io.ktor.server.response.*
 suspend fun ApplicationCall.validateDeck(deck: Deck, needId: Boolean = false): Boolean? {
     if (needId) {
         if (deck.deckId.isBlank()) {
-            respond(Result.errorNoData(code = ERR_NO_DECK_ID.first, message = ERR_NO_DECK_ID.second))
+            errorRespond(ERR_NO_DECK_ID)
             return null
         }
     }
     if (deck.deckContributor.isBlank()) {
-        respond(Result.errorNoData(code = ERR_NO_CONTRIBUTOR.first, message = ERR_NO_CONTRIBUTOR.second))
+        errorRespond(ERR_NO_CONTRIBUTOR)
         return null
     }
     if (deck.deckName.isBlank()) {
-        respond(Result.errorNoData(code = ERR_NO_DECK_NAME.first, message = ERR_NO_DECK_NAME.second))
+        errorRespond(ERR_NO_DECK_NAME)
         return null
     }
     // 敏感词判断，这里把卡组名称和贡献者名称拼在一起查，主要是为了减少查库次数
@@ -36,12 +42,12 @@ suspend fun ApplicationCall.validateDeck(deck: Deck, needId: Boolean = false): B
         return null
     }
     if (deck.deckYdk.isNullOrBlank()) {
-        respond(Result.errorNoData(code = ERR_NO_YDK.first, message = ERR_NO_YDK.second))
+        errorRespond(ERR_NO_YDK)
         return null
     }
 
     if (deck.deckYdk?.replace("\r", "")?.split("\n")?.isValidYdk() != true) {
-        respond(Result.errorNoData(code = ERR_YDK_NOT_VALID.first, message = ERR_YDK_NOT_VALID.second))
+        errorRespond(ERR_YDK_NOT_VALID)
         return null
     }
     return true
@@ -53,8 +59,7 @@ suspend fun ApplicationCall.validateDeck(deck: Deck, needId: Boolean = false): B
 suspend fun ApplicationCall.validateUserId(): Long? {
     val userId = parameters["userId"]?.toLongOrNull()
     if (userId == null) {
-        // application.log.error("请求 [${request.path()}] 没有提供 userId 参数")
-        respond(Result.errorNoData(code = ERR_NO_USER_ID.first, message = ERR_NO_USER_ID.second))
+        errorRespond(ERR_NO_USER_ID)
         return null
     }
     return userId
@@ -62,7 +67,7 @@ suspend fun ApplicationCall.validateUserId(): Long? {
 
 suspend fun ApplicationCall.validateReqUserId(userId: Long): Boolean? {
     if (userId == 0L) {
-        respond(Result.errorNoData(code = ERR_NO_USER_ID.first, message = ERR_NO_USER_ID.second))
+        errorRespond(ERR_NO_USER_ID)
         return null
     }
     return true
@@ -71,47 +76,29 @@ suspend fun ApplicationCall.validateReqUserId(userId: Long): Boolean? {
 suspend fun ApplicationCall.validateId(): String? {
     val id = parameters["id"]
     if (id.isNullOrBlank()) {
-        respond(Result.errorNoData(code = ERR_NO_DECK_ID.first, message = ERR_NO_DECK_ID.second))
+        errorRespond(ERR_NO_DECK_ID)
         return null
     }
     return id
 }
 
+suspend fun ApplicationCall.validatePuzzleId(): Long? {
+    val id = parameters["id"]?.toLongOrNull()
+    if (id == null) {
+        errorRespond(ERR_NO_PUZZLE_ID)
+        return null
+    }
+    return id
+
+}
+
 suspend fun ApplicationCall.validateSource(): Boolean? {
     val src = request.header("ReqSource")
     if (src.isNullOrBlank() || src != "MDPro3") {
-        // application.log.error("请求 [${request.path()}] 没有提供合法的 ReqSource")
-        respond(Result.errorNoData(code = ERR_REQ_SOURCE.first, message = ERR_REQ_SOURCE.second))
+        errorRespond(ERR_REQ_SOURCE)
         return null
     }
     return true
-}
-
-suspend fun ApplicationCall.validateDauSrc(): String? {
-    val src = request.queryParameters["src"]
-    if (src.isNullOrBlank()) {
-        respond(Result.errorNoData(code = ERR_DAU_SRC.first, message = ERR_DAU_SRC.second))
-        return null
-    }
-    return src
-}
-
-suspend fun ApplicationCall.validateDauYear(): Int? {
-    val year = request.queryParameters["year"]?.toIntOrNull()
-    if (year == null) {
-        respond(Result.errorNoData(code = ERR_DAU_YEAR.first, message = ERR_DAU_YEAR.second))
-        return null
-    }
-    return year
-}
-
-suspend fun ApplicationCall.validateDauMonth(): Int? {
-    val month = request.queryParameters["month"]?.toIntOrNull()
-    if (month == null) {
-        respond(Result.errorNoData(code = ERR_DAU_MONTH.first, message = ERR_DAU_MONTH.second))
-        return null
-    }
-    return month
 }
 
 /**
@@ -120,14 +107,45 @@ suspend fun ApplicationCall.validateDauMonth(): Int? {
 suspend fun ApplicationCall.validateToken(userId: Long): Boolean? {
     val token = request.header("token")
     if (token.isNullOrBlank()) {
-        // application.log.error("请求 [${request.path()}] 没有提供 token")
-        respond(Result.errorNoData(code = ERR_NO_TOKEN.first, message = ERR_NO_TOKEN.second))
+        errorRespond(ERR_NO_TOKEN)
         return null
     }
     val cacheKey = "mc_${userId}_$token"
-    return CacheManager.getMcValidated(cacheKey) {
+    val ret = CacheManager.getMcValidated(cacheKey) {
         MCTokenValidation.validate(token, userId)
     }
+    if (!ret) {
+        errorRespond(ERR_USER_VALIDATE)
+        return null
+    }
+    return true
+}
+
+/**
+ * 验证用于残局的管理员身份
+ *
+ * 验证不通过返回为 null，验证通过返回角色所代表的整型值
+ */
+suspend fun ApplicationCall.validatePuzzleAdmin(): Int? {
+    val userId = request.header("userId")?.toLongOrNull()
+    val token = request.header("token")
+    if (userId == null) {
+        errorRespond(ERR_NO_USER_ID)
+        return null
+    }
+    if (token.isNullOrBlank()) {
+        errorRespond(ERR_NO_TOKEN)
+        return null
+    }
+    val cacheKey = "mc_${userId}_$token"
+    val ret = CacheManager.getMcValidated(cacheKey) {
+        MCTokenValidation.validate(token, userId)
+    }
+    if (!ret) {
+        errorRespond(ERR_USER_VALIDATE)
+        return null
+    }
+    return dbMDPro3.users.find { it.userId eq userId }?.roleId ?: 0
 }
 
 fun List<String>.isValidYdk(): Boolean {

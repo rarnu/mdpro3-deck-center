@@ -77,10 +77,46 @@ create table user_config
 ) character set utf8mb4;
 
 -- 创建额外的索引
-
 create index idx_pub_del on deck (is_delete, is_public);
 create index idx_name on deck (deck_name);
 create index idx_contributor on deck (deck_contributor);
 CREATE INDEX idx_userid ON deck (user_id);
 CREATE INDEX idx_update ON deck (deck_update_date);
 create index idx_like on deck (deck_like);
+
+-- 2024.10.16
+
+-- 残局表
+create table puzzle
+(
+    id           bigint       not null primary key auto_increment, -- 主键
+    name         varchar(256) not null,                            -- 残局的名称
+    user_id      bigint       not null default 0,                  -- 上传者的用户 id
+    contributor  varchar(128) not null default '',                 -- 上传者的名字
+    lua_script   text,                                             -- lua 脚本
+    message      text,                                             -- message
+    solution     text,                                             -- solution
+    cover_card   bigint,                                           -- 第一张卡
+    audited      int          not null default 0,                  -- 审核状态:0:未审核，1:已通过，2:已拒绝
+    publish_date datetime     not null default now()               -- 发布时间
+) character set utf8mb4;
+
+-- 残局通关表
+create table puzzle_pass
+(
+    puzzle_id bigint   not null,               -- 残局id
+    user_id   bigint   not null,               -- 通关的用户id
+    pass_time datetime not null default now(), -- 通关时间
+    primary key (puzzle_id, user_id)
+) character set utf8mb4;
+
+create unique index idx_name_user on puzzle(name, user_id);
+create index idx_contributor on puzzle(contributor);
+create index idx_audited on puzzle(audited);
+
+-- 用户角色表，用于判定管理员权限
+create table user (
+    user_id bigint not null primary key, -- 用户ID，来源MC
+    role_id int not null default 0 -- 用户角色，默认是0，即没有权限，管理员设置为100
+) character set utf8mb4;
+
