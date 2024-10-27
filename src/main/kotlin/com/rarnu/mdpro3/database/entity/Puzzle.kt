@@ -1,3 +1,5 @@
+@file:Suppress("DuplicatedCode")
+
 package com.rarnu.mdpro3.database.entity
 
 import org.ktorm.entity.Entity
@@ -19,3 +21,14 @@ interface Puzzle: Entity<Puzzle> {
     var publishDate: LocalDateTime
 }
 
+fun Puzzle.copyForAdd(): Puzzle {
+    val p = Puzzle { }
+    p.name = this.name
+    p.userId = this.userId
+    p.contributor = this.contributor
+    p.message = this.message
+    p.solution = this.solution
+    p.coverCard = this.coverCard
+    p.luaScript = this.luaScript
+    return p
+}

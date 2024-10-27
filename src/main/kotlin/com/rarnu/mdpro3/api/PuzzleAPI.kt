@@ -12,6 +12,7 @@ import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.database.entity.Puzzle
 import com.rarnu.mdpro3.database.entity.PuzzlePass
+import com.rarnu.mdpro3.database.entity.copyForAdd
 import com.rarnu.mdpro3.database.table.PuzzlePasses
 import com.rarnu.mdpro3.database.table.Puzzles
 import com.rarnu.mdpro3.database.table.puzzlePasses
@@ -208,6 +209,7 @@ fun Route.puzzleAPI() = route("/puzzle") {
         call.validatePuzzleAdmin() ?: return@post
         val ret = try {
             it.audited = 0
+            it.publishDate = LocalDateTime.now()
             dbMDPro3.puzzles.add(it) > 0
         } catch (e: Exception) {
             false
@@ -245,7 +247,23 @@ fun Route.puzzleAPI() = route("/puzzle") {
      *
      * id 为 0 表示新增，不为 0 表示更新
      */
-    post<Puzzle>("/save") {
-        // TODO: 新增或更新残局
+    post<Puzzle>("/save") { req ->
+        call.validateSource() ?: return@post
+        call.validatePuzzleAdmin() ?: return@post
+        val entity = if (req.id == 0L) req.copyForAdd() else req
+        entity.audited = 0
+        entity.publishDate = LocalDateTime.now()
+
+        val ret = try {
+            if (req.id == 0L) {
+                dbMDPro3.puzzles.add(entity) > 0
+            } else {
+                dbMDPro3.puzzles.update(entity) > 0
+            }
+        } catch (e: Exception) {
+            application.log.error("[/save] $e")
+            false
+        }
+        call.respond(Result.success(message = "$ret", data = entity.id))
     }
 }
