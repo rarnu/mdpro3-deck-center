@@ -8,10 +8,14 @@ ktor:
     sslPort: 38443
   security:
     ssl:
-      keyStore: "/etc/letsencrypt/live/rarnu.xyz/keystore.jks"
-      keyAlias: "rarnu"
+      keyStore: "/etc/letsencrypt/live/zgai.tech/keystore.jks"
+      keyAlias: "zgai"
       keyStorePassword: "Rarnu1120"
       privateKeyPassword: "Rarnu1120"
+#      keyStore: "/etc/letsencrypt/live/rarnu.xyz/keystore.jks"
+#      keyAlias: "rarnu"
+#      keyStorePassword: "Rarnu1120"
+#      privateKeyPassword: "Rarnu1120"
 
 database:
   mdpro3:
