@@ -94,7 +94,7 @@ suspend fun ApplicationCall.validatePuzzleId(): Long? {
 
 suspend fun ApplicationCall.validateSource(): Boolean? {
     val src = request.header("ReqSource")
-    if (src.isNullOrBlank() || src != "MDPro3") {
+    if (src.isNullOrBlank() || (src != "MDPro3" && src != "YGOMobile")) {
         errorRespond(ERR_REQ_SOURCE)
         return null
     }
