@@ -1,12 +1,11 @@
 package com.rarnu.mdpro3.api
 
-import com.isyscore.kotlin.ktor.Result
+import com.isyscore.kotlin.ktor.KResult
 import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.request.WordReq
 import com.rarnu.mdpro3.define.ERR_NO_WORD
 import com.rarnu.mdpro3.ext.validateSource
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -19,14 +18,14 @@ fun Route.sensitiveWordAPI() = route("/sw") {
         call.validateSource() ?: return@post
         // call.record("/sw/validate")
         if (it.text.isBlank()) {
-            call.respond(Result.errorNoData(code = ERR_NO_WORD.first, message = ERR_NO_WORD.second))
+            call.respond(KResult.errorNoData(code = ERR_NO_WORD.first, message = ERR_NO_WORD.second))
             return@post
         }
         val cacheKey = "sw_validate_text_${it.text}"
         val ret = CacheManager.get(cacheKey) {
             validateWord(it.text)
         }
-        call.respond(Result.success(message = "${ret.isEmpty()}", data = ret))
+        call.respond(KResult.success(message = "${ret.isEmpty()}", data = ret))
     }
 }
 

@@ -1,8 +1,7 @@
 package com.rarnu.mdpro3.api
 
-import com.isyscore.kotlin.ktor.Result
+import com.isyscore.kotlin.ktor.KResult
 import com.rarnu.mdpro3.database.Omega
-import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -11,12 +10,12 @@ fun Route.yugiohApi() = route("/yugioh") {
     get("/list") {
         val name = call.request.queryParameters["name"]
         if (name.isNullOrBlank()) {
-            call.respond(Result.successNoData())
+            call.respond(KResult.successNoData())
             return@get
         }
         val lang = call.request.queryParameters["lang"] ?: "jp"
         val ret = Omega.cardNameList(name, lang)
-        call.respond(Result.success(data = ret))
+        call.respond(KResult.success(data = ret))
     }
 
     get("/card/{password}") {
@@ -26,7 +25,7 @@ fun Route.yugiohApi() = route("/yugioh") {
         if (ret != null) {
             call.respond(ret)
         } else {
-            call.respond(Result.errorNoData())
+            call.respond(KResult.errorNoData())
         }
     }
 
@@ -36,7 +35,7 @@ fun Route.yugiohApi() = route("/yugioh") {
         if (data != null) {
             call.respond(data)
         } else {
-            call.respond(Result.errorNoData())
+            call.respond(KResult.errorNoData())
         }
     }
 

@@ -2,9 +2,9 @@
 
 package com.rarnu.mdpro3.api
 
-import com.isyscore.kotlin.ktor.PagedData
-import com.isyscore.kotlin.ktor.PagedResult
-import com.isyscore.kotlin.ktor.Result
+import com.isyscore.kotlin.ktor.KPagedData
+import com.isyscore.kotlin.ktor.KPagedResult
+import com.isyscore.kotlin.ktor.KResult
 import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.database.entity.Deck
@@ -20,7 +20,6 @@ import com.rarnu.mdpro3.response.DeckLiteVO
 import com.rarnu.mdpro3.response.fromRow
 import com.rarnu.mdpro3.util.CardSerial
 import com.rarnu.mdpro3.util.SnowFlakeManager
-import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -36,7 +35,7 @@ fun Route.deckAPI() = route("/deck") {
     get("/deckId") {
         call.validateSource() ?: return@get
         // call.record("/deck/deckId")
-        call.respond(Result.success(data = SnowFlakeManager.nextSnowId()))
+        call.respond(KResult.success(data = SnowFlakeManager.nextSnowId()))
     }
 
     /**
@@ -47,7 +46,7 @@ fun Route.deckAPI() = route("/deck") {
         // call.record("/deck/deckIds")
         val count = call.request.queryParameters["count"]?.toIntOrNull() ?: 0
         val ret = (0 until count).map { SnowFlakeManager.nextSnowId() }
-        call.respond(Result.success(data = ret))
+        call.respond(KResult.success(data = ret))
     }
 
     /**
@@ -62,7 +61,7 @@ fun Route.deckAPI() = route("/deck") {
             set(Decks.isPublic, req.isPublic)
             where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
         } > 0
-        call.respond(Result.successNoData(message = "$ret"))
+        call.respond(KResult.successNoData(message = "$ret"))
     }
 
     /**
@@ -77,7 +76,7 @@ fun Route.deckAPI() = route("/deck") {
             set(Decks.description, req.description)
             where { (Decks.deckId eq req.deckId) and (Decks.userId eq req.userId) }
         } > 0
-        call.respond(Result.successNoData(message = "$ret"))
+        call.respond(KResult.successNoData(message = "$ret"))
     }
 
     /**
@@ -99,9 +98,9 @@ fun Route.deckAPI() = route("/deck") {
             false to e.message
         }
         if (succ) {
-            call.respond(Result.success(data = it))
+            call.respond(KResult.success(data = it))
         } else {
-            call.respond(Result.error(code = ERR_UPLOAD_DECK.first, message = ERR_UPLOAD_DECK.second, data = "$err"))
+            call.respond(KResult.error(code = ERR_UPLOAD_DECK.first, message = ERR_UPLOAD_DECK.second, data = "$err"))
         }
     }
 
@@ -123,9 +122,9 @@ fun Route.deckAPI() = route("/deck") {
             false to e.message
         }
         if (succ) {
-            call.respond(Result.success(data = d))
+            call.respond(KResult.success(data = d))
         } else {
-            call.respond(Result.error(code = ERR_UPDATE_DECK.first, message = ERR_UPDATE_DECK.second, data = "$err"))
+            call.respond(KResult.error(code = ERR_UPDATE_DECK.first, message = ERR_UPDATE_DECK.second, data = "$err"))
         }
     }
 
@@ -143,9 +142,9 @@ fun Route.deckAPI() = route("/deck") {
             false to e.message
         }
         if (succ) {
-            call.respond(Result.successNoData())
+            call.respond(KResult.successNoData())
         } else {
-            call.respond(Result.error(code = ERR_DELETE_DECK.first, message = ERR_DELETE_DECK.second, data = "$err"))
+            call.respond(KResult.error(code = ERR_DELETE_DECK.first, message = ERR_DELETE_DECK.second, data = "$err"))
         }
     }
 
@@ -161,9 +160,9 @@ fun Route.deckAPI() = route("/deck") {
             dbMDPro3.decks.find { it.deckId eq id }
         }
         if (ret != null) {
-            call.respond(Result.success(data = ret))
+            call.respond(KResult.success(data = ret))
         } else {
-            call.respond(Result.errorNoData(code = ERR_DECK_NOT_EXISTS.first, message = ERR_DECK_NOT_EXISTS.second))
+            call.respond(KResult.errorNoData(code = ERR_DECK_NOT_EXISTS.first, message = ERR_DECK_NOT_EXISTS.second))
         }
     }
 
@@ -198,10 +197,10 @@ fun Route.deckAPI() = route("/deck") {
             val total = q.totalRecordsInAllPages
             val pages = (total / size) + (if (total % size == 0) 0 else 1)
             val list = q.map { DeckLiteVO.fromRow(it) /*Decks.createEntity(it)*/ }
-            PagedData(current = page, size = size, total = total, pages = pages, records = list)
+            KPagedData(current = page, size = size, total = total, pages = pages, records = list)
         }
 
-        call.respond(PagedResult.success(data = ret))
+        call.respond(KPagedResult.success(data = ret))
     }
 
     /**
@@ -214,7 +213,7 @@ fun Route.deckAPI() = route("/deck") {
         val ip = call.request.origin.remoteHost
         val cacheKey = "remote_host_${ip}_deck_${id}"
         if (CacheManager.hasLike(cacheKey)) {
-            call.respond(Result.errorNoData(code = ERR_LIKE_TOO_NEAR.first, message = ERR_LIKE_TOO_NEAR.second))
+            call.respond(KResult.errorNoData(code = ERR_LIKE_TOO_NEAR.first, message = ERR_LIKE_TOO_NEAR.second))
             return@post
         }
         val succ = dbMDPro3.update(Decks) {
@@ -222,7 +221,7 @@ fun Route.deckAPI() = route("/deck") {
             where { Decks.deckId eq id }
         } > 0
         CacheManager.accessLike(cacheKey)
-        call.respond(Result.successNoData(message = "$succ"))
+        call.respond(KResult.successNoData(message = "$succ"))
     }
 
     /**
@@ -236,7 +235,7 @@ fun Route.deckAPI() = route("/deck") {
             set(Decks.deckRank, req.rank)
             where { Decks.deckId eq id }
         } > 0
-        call.respond(Result.successNoData(message = "$succ"))
+        call.respond(KResult.successNoData(message = "$succ"))
     }
 
     /**
@@ -267,7 +266,7 @@ fun Route.deckAPI() = route("/deck") {
             q = q.limit(size)
             q.map { DeckLiteVO.fromRow(it) }
         }
-        call.respond(Result.success(data = ret))
+        call.respond(KResult.success(data = ret))
     }
 
 }

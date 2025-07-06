@@ -4,9 +4,9 @@ package com.rarnu.mdpro3.api
 
 import com.isyscore.kotlin.common.createEntitySeq
 import com.isyscore.kotlin.common.plus
-import com.isyscore.kotlin.ktor.Result
-import com.isyscore.kotlin.ktor.PagedData
-import com.isyscore.kotlin.ktor.PagedResult
+import com.isyscore.kotlin.ktor.KResult
+import com.isyscore.kotlin.ktor.KPagedData
+import com.isyscore.kotlin.ktor.KPagedResult
 import com.isyscore.kotlin.ktor.errorRespond
 import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
@@ -68,10 +68,10 @@ fun Route.puzzleAPI() = route("/puzzle") {
             val total = q.totalRecordsInAllPages
             val pages = (total / size) + (if (total % size == 0) 0 else 1)
             val list = q.map { createEntitySeq<PuzzleVO>(it) }
-            PagedData(current = page, size = size, total = total, pages = pages, records = list)
+            KPagedData(current = page, size = size, total = total, pages = pages, records = list)
         }
 
-        call.respond(PagedResult.success(data = ret))
+        call.respond(KPagedResult.success(data = ret))
     }
 
     /**
@@ -100,9 +100,9 @@ fun Route.puzzleAPI() = route("/puzzle") {
         val total = q.totalRecordsInAllPages
         val pages = (total / size) + (if (total % size == 0) 0 else 1)
         val list = q.map { Puzzles.createEntity(it) }
-        val ret = PagedData(current = page, size = size, total = total, pages = pages, records = list)
+        val ret = KPagedData(current = page, size = size, total = total, pages = pages, records = list)
 
-        call.respond(PagedResult.success(data = ret))
+        call.respond(KPagedResult.success(data = ret))
     }
 
     /**
@@ -132,9 +132,9 @@ fun Route.puzzleAPI() = route("/puzzle") {
         val total = q.totalRecordsInAllPages
         val pages = (total / size) + (if (total % size == 0) 0 else 1)
         val list = q.map { Puzzles.createEntity(it) }
-        val ret = PagedData(current = page, size = size, total = total, pages = pages, records = list)
+        val ret = KPagedData(current = page, size = size, total = total, pages = pages, records = list)
 
-        call.respond(PagedResult.success(data = ret))
+        call.respond(KPagedResult.success(data = ret))
     }
 
     /**
@@ -149,10 +149,10 @@ fun Route.puzzleAPI() = route("/puzzle") {
                 this.userId = it.userId
                 this.passTime = LocalDateTime.now()
             }) > 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
-        call.respond(Result.successNoData(message = "$ret"))
+        call.respond(KResult.successNoData(message = "$ret"))
     }
 
     /**
@@ -174,10 +174,10 @@ fun Route.puzzleAPI() = route("/puzzle") {
                 dbMDPro3.puzzlePasses.removeIf { it.puzzleId eq id }
             }
             succ
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
-        call.respond(Result.successNoData(message = "$ret"))
+        call.respond(KResult.successNoData(message = "$ret"))
     }
 
     /**
@@ -195,10 +195,10 @@ fun Route.puzzleAPI() = route("/puzzle") {
                 set(Puzzles.audited, req.audit)
                 where { Puzzles.id eq req.puzzleId }
             } > 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
-        call.respond(Result.successNoData(message = "$ret"))
+        call.respond(KResult.successNoData(message = "$ret"))
     }
 
     /**
@@ -211,10 +211,10 @@ fun Route.puzzleAPI() = route("/puzzle") {
             it.audited = 0
             it.publishDate = LocalDateTime.now()
             dbMDPro3.puzzles.add(it) > 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
-        call.respond(Result.successNoData(message = "$ret"))
+        call.respond(KResult.successNoData(message = "$ret"))
     }
 
     /**
@@ -236,10 +236,10 @@ fun Route.puzzleAPI() = route("/puzzle") {
             req.audited = 0
             req.publishDate = LocalDateTime.now()
             dbMDPro3.puzzles.update(req) > 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
-        call.respond(Result.successNoData(message = "$ret"))
+        call.respond(KResult.successNoData(message = "$ret"))
     }
 
     /**
@@ -264,6 +264,6 @@ fun Route.puzzleAPI() = route("/puzzle") {
             application.log.error("[/save] $e")
             false
         }
-        call.respond(Result.success(message = "$ret", data = entity.id))
+        call.respond(KResult.success(message = "$ret", data = entity.id))
     }
 }

@@ -7,7 +7,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.ktorm.dsl.eq
-import com.isyscore.kotlin.ktor.Result
+import com.isyscore.kotlin.ktor.KResult
 import com.rarnu.mdpro3.request.MultiSyncReq
 import com.rarnu.mdpro3.request.SingleSyncReq
 import com.rarnu.mdpro3.request.SyncDeckReq
@@ -39,7 +39,7 @@ fun Route.syncAPI() = route("/sync") {
                 it
             }
         }
-        call.respond(Result.success(data = ret))
+        call.respond(KResult.success(data = ret))
     }
 
     /**
@@ -56,7 +56,7 @@ fun Route.syncAPI() = route("/sync") {
         val ret = CacheManager.get(cacheKey, isPublic = false) {
             dbMDPro3.decks.filter { (it.userId eq userId) and (it.isDelete eq false) }.sortedByDescending { it.deckUpdateDate }.map { it }
         }
-        call.respond(Result.success(data = ret))
+        call.respond(KResult.success(data = ret))
     }
 
     /**
@@ -69,7 +69,7 @@ fun Route.syncAPI() = route("/sync") {
         // call.record("/sync/multi")
         if (req.decks.isEmpty()) {
             // 没有要同步的卡组，直接返回正确
-            call.respond(Result.successNoData())
+            call.respond(KResult.successNoData())
             return@post
         }
         // 开启一个事务来批量同步卡组
@@ -83,14 +83,14 @@ fun Route.syncAPI() = route("/sync") {
             try {
                 trans.commit()
                 req.decks.size == list.count { it }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 trans.rollback()
                 false
             }
         }
         val cacheKey = "sync_get_user_${req.userId}"
         CacheManager.clean(cacheKey, isPublic = false)
-        call.respond(if (ret) Result.success(data = req.decks.size) else Result.errorNoData(code = ERR_SYNC_FAIL.first, message = ERR_SYNC_FAIL.second))
+        call.respond(if (ret) KResult.success(data = req.decks.size) else KResult.errorNoData(code = ERR_SYNC_FAIL.first, message = ERR_SYNC_FAIL.second))
     }
 
     /**
@@ -107,7 +107,7 @@ fun Route.syncAPI() = route("/sync") {
         CacheManager.clean(cacheKey, isPublic = false)
         val cacheKey2 = "deck_get_id_${req.deck.deckId}"
         CacheManager.clean(cacheKey2)
-        call.respond(Result.success(data = ret))
+        call.respond(KResult.success(data = ret))
     }
 }
 
@@ -148,7 +148,7 @@ private fun ApplicationCall.syncDeck(dr: SyncDeckReq, userId: Long, contributor:
             }
         }
     }
-} catch (e: Exception) {
+} catch (_: Exception) {
     // application.log.error("请求同步卡组 [${request.path()}] [user = $userId] [deck = ${dr.deckId}] 失败，原因是: $e")
     false
 }

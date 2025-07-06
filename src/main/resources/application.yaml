@@ -6,6 +6,14 @@ ktor:
   deployment:
     port: 38383
     sslPort: 38443
+    connectionGroupSize: 10
+    workerGroupSize: 50
+    callGroupSize: 200
+    shutdownGracePeriod: 2000
+    shutdownTimeout: 3000
+    requestQueueLimit: 500
+    runningLimit: 1280
+
   security:
     ssl:
       keyStore: "/etc/letsencrypt/live/zgai.tech/keystore.jks"
