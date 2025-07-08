@@ -9,6 +9,7 @@ val druidVersion: String by project
 val mysqlVersion: String by project
 val sqliteVersion: String by project
 val kuromojiVersion: String by project
+val postgresqlVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.0"
@@ -79,7 +80,8 @@ dependencies {
 
     // mysql
     implementation("mysql:mysql-connector-java:$mysqlVersion")
-
+    // postgres
+    implementation("org.postgresql:postgresql:$postgresqlVersion")
     // sqlite
     implementation("org.xerial:sqlite-jdbc:$sqliteVersion")
 
