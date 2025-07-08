@@ -6,7 +6,6 @@ val commonKtorVersion: String by project
 val httpV2Version: String by project
 val ktormVersion: String by project
 val druidVersion: String by project
-val mysqlVersion: String by project
 val sqliteVersion: String by project
 val kuromojiVersion: String by project
 val postgresqlVersion: String by project
@@ -73,13 +72,11 @@ dependencies {
     implementation("org.ktorm:ktorm-jackson:$ktormVersion")
     implementation("com.alibaba:druid:$druidVersion")
 
-    val dialects = arrayOf("mysql", "postgresql", "sqlite", "oracle", "sqlserver")
+    val dialects = arrayOf("postgresql", "sqlite")
     dialects.forEach { dialect ->
         implementation("org.ktorm:ktorm-support-${dialect}:$ktormVersion")
     }
 
-    // mysql
-    implementation("mysql:mysql-connector-java:$mysqlVersion")
     // postgres
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     // sqlite

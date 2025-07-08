@@ -10,7 +10,7 @@ import org.ktorm.database.Database
 import org.ktorm.database.SqlDialect
 import org.ktorm.logging.ConsoleLogger
 import org.ktorm.logging.LogLevel
-import org.ktorm.support.mysql.MySqlDialect
+import org.ktorm.support.postgresql.PostgreSqlDialect
 import org.ktorm.support.sqlite.SQLiteDialect
 
 object DatabaseManager {
@@ -20,13 +20,13 @@ object DatabaseManager {
     lateinit var dbOmega: Database
 
     fun initMDPro3(info: Triple<String, String, String>) {
-        val (db, err) = databasePoolOf("com.mysql.cj.jdbc.Driver", info.first, info.second, info.third, MySqlDialect())
+        val (db, err) = databasePoolOf("org.postgresql.Driver", info.first, info.second, info.third, PostgreSqlDialect())
         if (err != null) throw err
         dbMDPro3 = db!!
     }
 
     fun initNameAPI(info: Triple<String, String, String>) {
-        val (db, err) = databasePoolOf("com.mysql.cj.jdbc.Driver", info.first, info.second, info.third, MySqlDialect())
+        val (db, err) = databasePoolOf("org.postgresql.Driver", info.first, info.second, info.third, PostgreSqlDialect())
         if (err != null) throw err
         dbNameAPI = db!!
     }
