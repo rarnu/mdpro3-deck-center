@@ -1,11 +1,24 @@
 package com.rarnu.mdpro3.database.table
 
-import com.rarnu.mdpro3.database.entity.UserConfig
 import org.ktorm.database.Database
+import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
 import org.ktorm.schema.long
 import org.ktorm.schema.text
+
+interface UserConfig: Entity<UserConfig> {
+    companion object : Entity.Factory<UserConfig>()
+
+    var userId: Long
+    var config: String
+    var extra1: String
+    var extra2: String
+    var extra3: String
+    var extra4: String
+    var extra5: String
+
+}
 
 object UserConfigs : Table<UserConfig>("user_config") {
     var userId = long("user_id").primaryKey().bindTo { it.userId }

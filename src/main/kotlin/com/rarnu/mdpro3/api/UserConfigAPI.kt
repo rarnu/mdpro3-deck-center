@@ -1,5 +1,6 @@
 package com.rarnu.mdpro3.api
 
+import com.isyscore.kotlin.common.save
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
 import com.rarnu.mdpro3.database.table.userConfigs
 import com.rarnu.mdpro3.ext.validateSource
@@ -10,8 +11,7 @@ import io.ktor.server.routing.*
 import org.ktorm.dsl.eq
 import org.ktorm.entity.find
 import com.isyscore.kotlin.ktor.KResult
-import com.rarnu.mdpro3.database.entity.UserConfig
-import com.rarnu.mdpro3.ext.save
+import com.rarnu.mdpro3.database.table.UserConfig
 
 fun Route.userConfigApi() = route("/user/config") {
 

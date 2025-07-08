@@ -2,7 +2,9 @@ package com.rarnu.mdpro3.response
 
 import com.rarnu.mdpro3.database.table.Decks
 import org.ktorm.dsl.QueryRowSet
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 data class DeckLiteVO(
@@ -31,6 +33,12 @@ fun DeckLiteVO.Companion.fromRow(row: QueryRowSet): DeckLiteVO = DeckLiteVO(
     deckCoverCard3 = row[Decks.deckCoverCard3] ?: 0L,
     deckCase = row[Decks.deckCase] ?: 0L,
     deckProtector = row[Decks.deckProtector] ?: 0L,
-    lastDate =  (row[Decks.deckUpdateDate] ?: row[Decks.deckUploadDate] ?: LocalDateTime.now()).format(DateTimeFormatter.ISO_DATE),
+    lastDate = (row[Decks.deckUpdateDate] ?: row[Decks.deckUploadDate] ?: Instant.now()).fmt(),
     userId = row[Decks.userId] ?: 0L
 )
+
+private fun Instant.fmt(): String {
+    val localDateTime = LocalDateTime.ofInstant(this, ZoneId.systemDefault())
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+    return localDateTime.format(formatter)
+}

@@ -2,9 +2,9 @@
 
 package com.rarnu.mdpro3.request
 
-import com.rarnu.mdpro3.database.entity.Deck
+import com.rarnu.mdpro3.database.table.Deck
 import com.rarnu.mdpro3.util.CardSerial
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  * 同步多个卡组请求
@@ -51,10 +51,10 @@ fun SyncDeckReq.toDeck(userId: Long, contributor: String = "", isUpdate: Boolean
     d.deckMainSerial = CardSerial.getCardSerial(listOf(deckCoverCard1, deckCoverCard2, deckCoverCard3))
     if (!isUpdate) {
         // 如果不是更新(是新增)，则写入 upload_date
-        d.deckUploadDate = LocalDateTime.now()
+        d.deckUploadDate = Instant.now()
     }
     // 任何情况都会写入 update_date
-    d.deckUpdateDate = LocalDateTime.now()
+    d.deckUpdateDate = Instant.now()
     return d
 }
 

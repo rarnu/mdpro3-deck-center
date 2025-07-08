@@ -1,12 +1,22 @@
 package com.rarnu.mdpro3.database.table
 
-import com.rarnu.mdpro3.database.entity.CardText
 import org.ktorm.database.Database
+import org.ktorm.entity.Entity
 import org.ktorm.entity.EntitySequence
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.Table
 import org.ktorm.schema.long
 import org.ktorm.schema.varchar
+
+interface CardText: Entity<CardText> {
+
+    companion object: Entity.Factory<CardText>()
+
+    var id: Long
+    var name: String
+    var desc: String
+
+}
 
 open class CardTexts(n: String): Table<CardText>(n) {
 

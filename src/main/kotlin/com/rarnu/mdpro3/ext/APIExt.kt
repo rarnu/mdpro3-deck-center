@@ -6,7 +6,7 @@ import com.isyscore.kotlin.ktor.errorRespond
 import com.rarnu.mdpro3.api.validateWord
 import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
-import com.rarnu.mdpro3.database.entity.Deck
+import com.rarnu.mdpro3.database.table.Deck
 import com.rarnu.mdpro3.database.table.users
 import com.rarnu.mdpro3.define.*
 import com.rarnu.mdpro3.response.ResultWithValue

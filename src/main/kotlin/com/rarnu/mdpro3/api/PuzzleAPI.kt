@@ -10,9 +10,9 @@ import com.isyscore.kotlin.ktor.KPagedResult
 import com.isyscore.kotlin.ktor.errorRespond
 import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
-import com.rarnu.mdpro3.database.entity.Puzzle
-import com.rarnu.mdpro3.database.entity.PuzzlePass
-import com.rarnu.mdpro3.database.entity.copyForAdd
+import com.rarnu.mdpro3.database.table.Puzzle
+import com.rarnu.mdpro3.database.table.PuzzlePass
+import com.rarnu.mdpro3.database.table.copyForAdd
 import com.rarnu.mdpro3.database.table.PuzzlePasses
 import com.rarnu.mdpro3.database.table.Puzzles
 import com.rarnu.mdpro3.database.table.puzzlePasses
@@ -34,7 +34,7 @@ import org.ktorm.entity.add
 import org.ktorm.entity.find
 import org.ktorm.entity.removeIf
 import org.ktorm.entity.update
-import java.time.LocalDateTime
+import java.time.Instant
 
 fun Route.puzzleAPI() = route("/puzzle") {
 
@@ -147,7 +147,7 @@ fun Route.puzzleAPI() = route("/puzzle") {
             dbMDPro3.puzzlePasses.add(PuzzlePass {
                 this.puzzleId = it.puzzleId
                 this.userId = it.userId
-                this.passTime = LocalDateTime.now()
+                this.passTime = Instant.now()
             }) > 0
         } catch (_: Exception) {
             false
@@ -209,7 +209,7 @@ fun Route.puzzleAPI() = route("/puzzle") {
         call.validatePuzzleAdmin() ?: return@post
         val ret = try {
             it.audited = 0
-            it.publishDate = LocalDateTime.now()
+            it.publishDate = Instant.now()
             dbMDPro3.puzzles.add(it) > 0
         } catch (_: Exception) {
             false
@@ -234,7 +234,7 @@ fun Route.puzzleAPI() = route("/puzzle") {
         }
         val ret = try {
             req.audited = 0
-            req.publishDate = LocalDateTime.now()
+            req.publishDate = Instant.now()
             dbMDPro3.puzzles.update(req) > 0
         } catch (_: Exception) {
             false
@@ -252,7 +252,7 @@ fun Route.puzzleAPI() = route("/puzzle") {
         call.validatePuzzleAdmin() ?: return@post
         val entity = if (req.id == 0L) req.copyForAdd() else req
         entity.audited = 0
-        entity.publishDate = LocalDateTime.now()
+        entity.publishDate = Instant.now()
 
         val ret = try {
             if (req.id == 0L) {

@@ -1,10 +1,26 @@
 package com.rarnu.mdpro3.database.table
 
-import com.rarnu.mdpro3.database.entity.RDText
+import org.ktorm.entity.Entity
 import org.ktorm.schema.Table
 import org.ktorm.schema.int
 import org.ktorm.schema.long
 import org.ktorm.schema.varchar
+
+interface RDText: Entity<RDText> {
+    companion object: Entity.Factory<RDText>()
+
+    var id: Long
+    var name: String
+    var kk: String
+    var desc: String
+    var type: Long
+    var atk: Int
+    var def: Int
+    var level: Int
+    var race: Long
+    var attribute: Long
+
+}
 
 object RDTexts: Table<RDText>("") {
 

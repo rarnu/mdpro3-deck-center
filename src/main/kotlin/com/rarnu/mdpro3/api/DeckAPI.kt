@@ -7,8 +7,8 @@ import com.isyscore.kotlin.ktor.KPagedResult
 import com.isyscore.kotlin.ktor.KResult
 import com.rarnu.mdpro3.cache.CacheManager
 import com.rarnu.mdpro3.database.DatabaseManager.dbMDPro3
-import com.rarnu.mdpro3.database.entity.Deck
-import com.rarnu.mdpro3.database.entity.fromUpdate
+import com.rarnu.mdpro3.database.table.Deck
+import com.rarnu.mdpro3.database.table.fromUpdate
 import com.rarnu.mdpro3.database.table.Decks
 import com.rarnu.mdpro3.database.table.decks
 import com.rarnu.mdpro3.define.*
@@ -25,7 +25,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.ktorm.dsl.*
 import org.ktorm.entity.*
-import java.time.LocalDateTime
+import java.time.Instant
 
 fun Route.deckAPI() = route("/deck") {
 
@@ -88,8 +88,8 @@ fun Route.deckAPI() = route("/deck") {
         call.validateDeck(it, false) ?: return@post
         // call.record("/deck/upload")
         it.deckId = SnowFlakeManager.nextSnowId() // IdGenerator.nextIdDB()
-        it.deckUploadDate = LocalDateTime.now()
-        it.deckUpdateDate = LocalDateTime.now()
+        it.deckUploadDate = Instant.now()
+        it.deckUpdateDate = Instant.now()
         it.deckMainSerial = CardSerial.getCardSerial(listOf(it.deckCoverCard1, it.deckCoverCard2, it.deckCoverCard3))
         it.isPublic = true
         val (succ, err) = try {
@@ -113,7 +113,7 @@ fun Route.deckAPI() = route("/deck") {
         call.validateDeck(it, true) ?: return@put
         // call.record("/deck/update")
         val d = it.fromUpdate()
-        d.deckUpdateDate = LocalDateTime.now()
+        d.deckUpdateDate = Instant.now()
         d.deckMainSerial = CardSerial.getCardSerial(listOf(d.deckCoverCard1, d.deckCoverCard2, d.deckCoverCard3))
         d.isPublic = true
         val (succ, err) = try {

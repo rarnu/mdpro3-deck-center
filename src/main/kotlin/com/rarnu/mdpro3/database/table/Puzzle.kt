@@ -1,9 +1,40 @@
 package com.rarnu.mdpro3.database.table
 
-import com.rarnu.mdpro3.database.entity.Puzzle
 import org.ktorm.database.Database
+import org.ktorm.entity.Entity
 import org.ktorm.entity.sequenceOf
 import org.ktorm.schema.*
+import java.time.Instant
+
+
+interface Puzzle: Entity<Puzzle> {
+
+    companion object: Entity.Factory<Puzzle>()
+
+    var id: Long
+    var name: String
+    var userId: Long
+    var contributor: String
+    var message: String
+    var solution: String
+    var coverCard: Long
+    var luaScript: String
+    var audited: Int
+    var publishDate: Instant
+}
+
+fun Puzzle.copyForAdd(): Puzzle {
+    val p = Puzzle { }
+    p.name = this.name
+    p.userId = this.userId
+    p.contributor = this.contributor
+    p.message = this.message
+    p.solution = this.solution
+    p.coverCard = this.coverCard
+    p.luaScript = this.luaScript
+    return p
+}
+
 
 object Puzzles : Table<Puzzle>("puzzle") {
 
@@ -16,7 +47,7 @@ object Puzzles : Table<Puzzle>("puzzle") {
     var coverCard = long("cover_card").bindTo { it.coverCard }
     var luaScript = text("lua_script").bindTo { it.luaScript }
     var audited = int("audited").bindTo { it.audited }
-    var publishDate = datetime("publish_date").bindTo { it.publishDate }
+    var publishDate = timestamp("publish_date").bindTo { it.publishDate }
 }
 
 val Database.puzzles get() = this.sequenceOf(Puzzles)
