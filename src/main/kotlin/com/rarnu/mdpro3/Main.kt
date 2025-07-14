@@ -23,7 +23,8 @@ import com.rarnu.mdpro3.jp.initKanjikanaData
 import com.rarnu.mdpro3.util.SnowFlakeManager.initSnowFlake
 import com.rarnu.mdpro3.util.Translate.initTranslateData
 import io.ktor.http.*
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.install
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -55,12 +56,6 @@ fun Application.module() {
     pluginCompress()
     pluginPartialContent()
     pluginContentNegotiation(localDateTimePattern = DateTimeFormatter.ISO_DATE_TIME)
-
-//    install(RateLimit) {
-//        global {
-//            rateLimiter(limit = 500, refillPeriod = 1.seconds)
-//        }
-//    }
 
     // 全局异常处理
     install(StatusPages) {

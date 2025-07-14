@@ -7,8 +7,9 @@ set search_path to mdpro3,public,sys_catalog;
 create table deck
 (
     deck_id          varchar(64)  not null primary key,   -- 主键ID
-    deck_contributor varchar(128) not null,               -- 贡献者
-    deck_name        varchar(128) not null,               -- 卡组名称
+    deck_contributor varchar(256) not null,               -- 贡献者
+    deck_name        varchar(256) not null,               -- 卡组名称
+    deck_type        varchar(256) not null default '',    -- 卡组分类
     deck_rank        int          not null default 0,     -- 流行程度，用于排序
     deck_like        int          not null default 0,     -- 点赞数
     deck_upload_date timestamp    not null default NOW(), -- 卡组上传时间
@@ -28,6 +29,7 @@ create table deck
 
 create index idx_contributor on deck (deck_contributor);
 create index idx_name on deck (deck_name);
+create index idx_type on deck (deck_type);
 create index idx_like on deck (deck_like);
 create index idx_rank on deck (deck_rank);
 create index idx_upload_date on deck (deck_upload_date);
@@ -84,7 +86,7 @@ create table puzzle
     id           serial       primary key, -- 主键
     name         varchar(256) not null,                            -- 残局的名称
     user_id      bigint       not null default 0,                  -- 上传者的用户 id
-    contributor  varchar(128) not null default '',                 -- 上传者的名字
+    contributor  varchar(256) not null default '',                 -- 上传者的名字
     lua_script   text,                                             -- lua 脚本
     message      text,                                             -- message
     solution     text,                                             -- solution
@@ -112,3 +114,30 @@ create table _user (
     role_id int not null default 0 -- 用户角色，默认是0，即没有权限，管理员设置为100
 );
 
+
+
+
+-- 制卡器
+create schema yugiohapi2;
+set search_path to yugiohapi2,public,sys_catalog;
+
+create table card_name_texts
+(
+    id       serial           primary key,
+    kanji    varchar(512)     not null,
+    kk       varchar(512)     not null,
+    donetime bigint default 0 null
+);
+create index idx_name_kanji on card_name_texts(kanji);
+
+create table set_name_texts
+(
+    id       serial             not null,
+    en       varchar(512)       not null,
+    kanji    varchar(512)       not null,
+    kk       varchar(512)       not null,
+    donetime bigint default 0   null,
+    primary key (id, en)
+);
+create index idx_set_en on set_name_texts(en);
+create index idx_set_ja on set_name_texts(kanji);

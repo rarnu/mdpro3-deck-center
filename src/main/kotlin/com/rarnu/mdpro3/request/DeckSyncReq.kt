@@ -27,6 +27,7 @@ data class SingleSyncReq(
 data class SyncDeckReq(
     var deckId: String = "",
     var deckName: String = "",
+    var deckType: String = "",
     var deckCoverCard1: Long = 0L,
     var deckCoverCard2: Long = 0L,
     var deckCoverCard3: Long = 0L,
@@ -41,6 +42,7 @@ fun SyncDeckReq.toDeck(userId: Long, contributor: String = "", isUpdate: Boolean
     d.deckId = this.deckId
     d.deckContributor = contributor
     d.deckName = this.deckName
+    d.deckType = this.deckType
     d.deckCoverCard1 = this.deckCoverCard1
     d.deckCoverCard2 = this.deckCoverCard2
     d.deckCoverCard3 = this.deckCoverCard3

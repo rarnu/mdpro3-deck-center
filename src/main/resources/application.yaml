@@ -28,13 +28,13 @@ ktor:
 database:
   mdpro3:
     # jdbcUrl: "jdbc:mysql://localhost:3306/mdpro3?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai"
-    jdbcUrl: "jdbc:postgresql://localhost:5432/mdpro3?currentSchema=mdpro3,public,sys_catalog&TimeZone=Asia/Shanghai"
-    user: root
-    password: rootroot
+    jdbcUrl: "jdbc:postgresql://localhost:54444/mdpro3?currentSchema=mdpro3,public,pg_catalog&TimeZone=Asia/Shanghai"
+    user: rarnu
+    password: @cw424.OMI
   nameapi:
     # jdbcUrl: "jdbc:mysql://localhost:3306/YugiohAPI2?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai"
-    jdbcUrl: "jdbc:postgresql://localhost:5432/mdpro3?currentSchema=yugiohapi2,public,sys_catalog&TimeZone=Asia/Shanghai"
-    user: root
-    password: rootroot
+    jdbcUrl: "jdbc:postgresql://localhost:54444/mdpro3?currentSchema=yugiohapi2,public,pg_catalog&TimeZone=Asia/Shanghai"
+    user: rarnu
+    password: @cw424.OMI
   omega:
     jdbcUrl: "jdbc:sqlite:files/OmegaDB.cdb"

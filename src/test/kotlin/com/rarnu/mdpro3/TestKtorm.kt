@@ -1,6 +1,6 @@
 package com.rarnu.mdpro3
 
-import com.rarnu.mdpro3.database.entity.Puzzle
+import com.rarnu.mdpro3.database.table.Puzzle
 import org.junit.Test
 
 class TestKtorm {

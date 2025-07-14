@@ -13,7 +13,7 @@ class TestValidateUser {
 
     @Test
     fun test1() {
-        val v = MCTokenValidation.validate("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE4NjgsImlhdCI6MTcxNzk0NDAwNCwiZXhwIjoxNzQ5NDgwMDA0fQ.mnzCQ_Jp3UWEd85C4LiGkNoncTx3gLXoyatoYFM70MM", 41868)
+        val v = MCTokenValidation.validate("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDE4NjgsImlhdCI6MTc1MTk3MDYwMywiZXhwIjoxNzgzNTA2NjAzfQ.Q7PfmxXi3VB2h2MLPS_CjOSkxFcg-uG22yBRN5zloMg", 41868)
         println(v)
     }
 

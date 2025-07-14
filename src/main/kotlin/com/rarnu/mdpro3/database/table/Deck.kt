@@ -14,6 +14,7 @@ interface Deck : Entity<Deck> {
     var deckId: String
     var deckContributor: String
     var deckName: String
+    var deckType: String
     var deckRank: Int
     var deckLike: Int
     var deckUploadDate: Instant
@@ -36,6 +37,7 @@ fun Deck.fromUpdate(): Deck {
     d.deckId = this.deckId
     d.deckContributor = this.deckContributor
     d.deckName = this.deckName
+    d.deckType = this.deckType
     d.deckCoverCard1 = this.deckCoverCard1
     d.deckCoverCard2 = this.deckCoverCard2
     d.deckCoverCard3 = this.deckCoverCard3
@@ -54,6 +56,7 @@ object Decks : Table<Deck>("deck") {
     var deckId = varchar("deck_id").primaryKey().bindTo { it.deckId }
     var deckContributor = varchar("deck_contributor").bindTo { it.deckContributor }
     var deckName = varchar("deck_name").bindTo { it.deckName }
+    var deckType = varchar("deck_type").bindTo { it.deckType }
     var deckRank = int("deck_rank").bindTo { it.deckRank }
     var deckLike = int("deck_like").bindTo { it.deckLike }
     var deckUploadDate = timestamp("deck_upload_date").bindTo { it.deckUploadDate }
